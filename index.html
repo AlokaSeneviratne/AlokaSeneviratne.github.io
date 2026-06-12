@@ -23,7 +23,7 @@
   --soldermask:   #121214;   /* matte board black, page background */
   --panel:        #19191d;   /* raised panel */
   --panel-edge:   #2b2b33;   /* card borders */
-  --silkscreen:   #ece9e2;   /* off-white text, like silkscreen print */
+  --silkscreen:   #ece9e2;   /* off-white text */
   --muted:        #9a9aa4;   /* secondary text */
   --copper:       #d99a5b;   /* copper trace accent */
   --pad-gold:     #ecc784;   /* highlight gold */
@@ -48,6 +48,7 @@ body {
   font-family: var(--body);
   font-size: 16px;
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 ::selection { background: var(--copper); color: var(--soldermask); }
@@ -65,9 +66,9 @@ a:focus-visible, button:focus-visible {
 /* ---------- top bar ---------- */
 header {
   border-bottom: 1px solid var(--panel-edge);
-  position: sticky; top: 0; z-index: 10;
-  background: rgba(18, 18, 20, 0.92);
-  backdrop-filter: blur(6px);
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(18, 18, 20, 0.86);
+  backdrop-filter: blur(8px);
 }
 .nav {
   display: flex; align-items: center; justify-content: space-between;
@@ -75,14 +76,14 @@ header {
 }
 .brand {
   font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em;
-  color: var(--silkscreen); text-transform: uppercase;
+  color: var(--silkscreen); text-transform: uppercase; cursor: pointer;
+  background: none; border: 0;
 }
 .brand .dot { color: var(--copper); }
 nav.links { display: flex; gap: 28px; }
 nav.links a {
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--muted);
-  position: relative;
+  text-transform: uppercase; color: var(--muted); position: relative;
 }
 nav.links a::after {
   content: ""; position: absolute; left: 0; bottom: -5px;
@@ -93,21 +94,30 @@ nav.links a::after {
 nav.links a:hover::after { transform: scaleX(1); }
 nav.links a:hover { color: var(--pad-gold); text-decoration: none; }
 
+/* ---------- view transitions ---------- */
+.view { animation: viewIn 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+[hidden] { display: none !important; }
+
 /* ---------- hero ---------- */
 .hero {
   position: relative;
-  padding: 96px 0 88px;
+  padding: 110px 0 96px;
   overflow: hidden;
 }
-.hero-traces {
-  position: absolute; inset: 0;
-  pointer-events: none;
-  opacity: 0.55;
+.hero-traces { position: absolute; inset: 0; pointer-events: none; opacity: 0.6; }
+.hero-glow {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(420px circle at var(--gx, 30%) var(--gy, 40%),
+              rgba(217, 154, 91, 0.16), transparent 60%);
+  transition: background 0.2s ease;
 }
 
-/* hero entrance: staggered rise, disabled automatically by reduced motion */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: none; }
 }
 .hero .eyebrow   { animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.3, 1) 0.05s both; }
@@ -117,165 +127,212 @@ nav.links a:hover { color: var(--pad-gold); text-decoration: none; }
 
 .eyebrow {
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
-  text-transform: uppercase; color: var(--copper);
-  margin-bottom: 18px;
+  text-transform: uppercase; color: var(--copper); margin-bottom: 18px;
 }
 h1 {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(2.4rem, 6vw, 4.2rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  max-width: 14ch;
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2.6rem, 7vw, 4.8rem);
+  line-height: 1.03; letter-spacing: -0.015em; max-width: 15ch;
 }
-.hero p.tagline {
-  margin-top: 22px;
-  max-width: 56ch;
-  color: var(--muted);
-  font-size: 1.06rem;
-}
-.hero-actions { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; }
+.hero p.tagline { margin-top: 24px; max-width: 56ch; color: var(--muted); font-size: 1.08rem; }
+.hero-actions { margin-top: 38px; display: flex; gap: 14px; flex-wrap: wrap; }
 .btn {
   font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 12px 22px;
-  border: 1px solid var(--copper);
-  color: var(--pad-gold);
-  background: transparent;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  text-transform: uppercase; padding: 13px 24px;
+  border: 1px solid var(--copper); color: var(--pad-gold);
+  background: transparent; cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
-.btn:hover { background: var(--copper); color: var(--soldermask); text-decoration: none; transform: translateY(-1px); }
+.btn:hover {
+  background: var(--copper); color: var(--soldermask);
+  text-decoration: none; transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(217, 154, 91, 0.25);
+}
 .btn.solid { background: var(--copper); color: var(--soldermask); }
 .btn.solid:hover { background: var(--pad-gold); border-color: var(--pad-gold); }
 
 /* ---------- scroll reveal ---------- */
 .reveal {
-  opacity: 0; transform: translateY(18px);
+  opacity: 0; transform: translateY(20px);
   transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
   transition-delay: var(--d, 0s);
 }
 .reveal.in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; }
-}
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
 
 /* ---------- section scaffolding ---------- */
-section { padding: 72px 0; border-top: 1px solid var(--panel-edge); }
-.sec-head {
-  display: flex; align-items: baseline; gap: 16px;
-  margin-bottom: 36px;
-}
-.sec-ref {
-  font-family: var(--mono); font-size: 12px;
-  color: var(--copper); letter-spacing: 0.15em;
-}
-.sec-head h2 {
-  font-family: var(--display); font-weight: 600;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-}
+section { padding: 76px 0; border-top: 1px solid var(--panel-edge); }
+.sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 38px; }
+.sec-ref { font-family: var(--mono); font-size: 12px; color: var(--copper); letter-spacing: 0.15em; }
+.sec-head h2 { font-family: var(--display); font-weight: 600; font-size: clamp(1.6rem, 3vw, 2.1rem); }
 
 /* ---------- projects grid ---------- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 18px;
+  gap: 20px;
+  perspective: 1100px;
 }
 .card {
   background: var(--panel);
   border: 1px solid var(--panel-edge);
-  padding: 22px;
+  padding: 24px;
   display: flex; flex-direction: column; gap: 12px;
-  position: relative;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative; overflow: hidden;
+  color: inherit; cursor: pointer;
+  transform-style: preserve-3d;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
-.card:hover {
-  border-color: var(--copper);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+.card::before {
+  content: ""; position: absolute; top: 0; left: -60%;
+  width: 50%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(236, 199, 132, 0.10), transparent);
+  transform: skewX(-18deg); transition: left 0.6s ease; pointer-events: none;
 }
+.card:hover { border-color: var(--copper); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); text-decoration: none; }
+.card:hover::before { left: 130%; }
 .card .ref {
-  position: absolute; top: 14px; right: 16px;
-  font-family: var(--mono); font-size: 11px;
-  color: var(--trace); letter-spacing: 0.1em;
+  position: absolute; top: 16px; right: 18px;
+  font-family: var(--mono); font-size: 11px; color: var(--trace); letter-spacing: 0.1em;
+  transition: color 0.18s ease;
 }
 .card:hover .ref { color: var(--copper); }
 .card h3 {
-  font-family: var(--display); font-weight: 600; font-size: 1.05rem;
-  padding-right: 40px;
-  word-break: break-word;
+  font-family: var(--display); font-weight: 600; font-size: 1.12rem;
+  padding-right: 40px; word-break: break-word; color: var(--silkscreen);
+  transition: color 0.18s ease;
 }
-.card h3 a { color: var(--silkscreen); }
-.card h3 a:hover { color: var(--pad-gold); text-decoration: none; }
-.card p.desc {
-  color: var(--muted); font-size: 0.92rem; flex-grow: 1;
-}
+.card:hover h3 { color: var(--pad-gold); }
+.card p.desc { color: var(--muted); font-size: 0.93rem; flex-grow: 1; }
 .topics { display: flex; flex-wrap: wrap; gap: 6px; }
 .topic {
-  font-family: var(--mono); font-size: 10.5px;
-  color: var(--pad-gold);
-  border: 1px solid var(--panel-edge);
-  padding: 2px 8px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--pad-gold);
+  border: 1px solid var(--panel-edge); padding: 2px 8px;
 }
 .meta {
   display: flex; align-items: center; gap: 16px;
   font-family: var(--mono); font-size: 11.5px; color: var(--muted);
-  border-top: 1px solid var(--panel-edge);
-  padding-top: 12px;
+  border-top: 1px solid var(--panel-edge); padding-top: 12px;
 }
 .lang-dot {
   display: inline-block; width: 9px; height: 9px; border-radius: 50%;
   margin-right: 6px; vertical-align: -1px;
 }
 .meta .spacer { flex-grow: 1; }
+.card .open-tag {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+  color: var(--copper); text-transform: uppercase; opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.card:hover .open-tag { opacity: 1; }
 
 /* ---------- status / error ---------- */
 .status {
   font-family: var(--mono); font-size: 13px; color: var(--muted);
-  border: 1px dashed var(--panel-edge);
-  padding: 28px; text-align: center;
+  border: 1px dashed var(--panel-edge); padding: 28px; text-align: center;
 }
 .status.error { color: var(--pad-gold); border-color: var(--copper); }
-.status code {
-  background: var(--panel); padding: 2px 6px; color: var(--pad-gold);
+.status code { background: var(--panel); padding: 2px 6px; color: var(--pad-gold); }
+
+/* ---------- project detail view ---------- */
+.project { padding: 64px 0 40px; }
+.back {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); display: inline-block; margin-bottom: 30px;
 }
+.back:hover { color: var(--copper); text-decoration: none; }
+.project-head { border-bottom: 1px solid var(--panel-edge); padding-bottom: 28px; margin-bottom: 36px; }
+.project-head .sec-ref { display: block; margin-bottom: 12px; }
+.project-head h1 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; max-width: none;
+  word-break: break-word;
+}
+.spec {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 18px;
+}
+.proj-desc { color: var(--muted); margin-top: 16px; font-size: 1.05rem; max-width: 70ch; }
+
+/* rendered README */
+.readme { max-width: 780px; }
+.readme > *:first-child { margin-top: 0; }
+.readme h1, .readme h2, .readme h3, .readme h4 {
+  font-family: var(--display); color: var(--silkscreen);
+  margin: 1.6em 0 0.6em; line-height: 1.2;
+}
+.readme h1 { font-size: 1.7rem; border-bottom: 1px solid var(--panel-edge); padding-bottom: 0.3em; }
+.readme h2 { font-size: 1.4rem; border-bottom: 1px solid var(--panel-edge); padding-bottom: 0.25em; }
+.readme h3 { font-size: 1.15rem; }
+.readme p, .readme li { color: #c7c7cf; }
+.readme p { margin: 0.9em 0; }
+.readme ul, .readme ol { margin: 0.9em 0 0.9em 1.4em; }
+.readme li { margin: 0.3em 0; }
+.readme a { color: var(--pad-gold); }
+.readme code {
+  font-family: var(--mono); font-size: 0.86em;
+  background: var(--panel); border: 1px solid var(--panel-edge);
+  padding: 1px 6px; border-radius: 2px; color: var(--pad-gold);
+}
+.readme pre {
+  background: var(--panel); border: 1px solid var(--panel-edge);
+  padding: 16px 18px; overflow-x: auto; margin: 1.1em 0;
+}
+.readme pre code { background: none; border: 0; padding: 0; color: #cdd3da; font-size: 0.85rem; }
+.readme blockquote {
+  border-left: 2px solid var(--copper); padding-left: 16px;
+  margin: 1.1em 0; color: var(--muted);
+}
+.readme img { max-width: 100%; height: auto; margin: 0.6em 0; }
+.readme table { border-collapse: collapse; margin: 1.1em 0; width: 100%; display: block; overflow-x: auto; }
+.readme th, .readme td { border: 1px solid var(--panel-edge); padding: 8px 12px; text-align: left; font-size: 0.9rem; }
+.readme th { background: var(--panel); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.readme hr { border: 0; border-top: 1px solid var(--panel-edge); margin: 1.6em 0; }
+
+/* README loading shimmer */
+.sk { max-width: 780px; }
+.sk-line, .sk-block {
+  position: relative; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--panel-edge);
+}
+.sk-line { height: 14px; margin: 14px 0; }
+.sk-block { height: 130px; margin: 20px 0; }
+.sk-line::after, .sk-block::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(217, 154, 91, 0.13), transparent);
+  transform: translateX(-100%); animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .sk-line::after, .sk-block::after { animation: none; } }
+
+.repo-cta {
+  margin-top: 48px; border-top: 1px solid var(--panel-edge); padding-top: 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.repo-cta .label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 
 /* ---------- about: bill of materials ---------- */
-.about-cols {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
-}
+.about-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
 .about-cols p { color: var(--muted); margin-bottom: 14px; }
 .about-cols p strong { color: var(--silkscreen); font-weight: 600; }
 .bom { width: 100%; border-collapse: collapse; }
 .bom caption {
   text-align: left; font-family: var(--mono); font-size: 11px;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--copper); padding-bottom: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--copper); padding-bottom: 10px;
 }
-.bom th, .bom td {
-  text-align: left; padding: 9px 12px;
-  border: 1px solid var(--panel-edge);
-  font-size: 0.88rem;
-}
-.bom th {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--muted);
-  background: var(--panel);
-}
-.bom td:first-child {
-  font-family: var(--mono); font-size: 12px; color: var(--copper);
-  white-space: nowrap;
-}
+.bom th, .bom td { text-align: left; padding: 9px 12px; border: 1px solid var(--panel-edge); font-size: 0.88rem; }
+.bom th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: var(--panel); }
+.bom td:first-child { font-family: var(--mono); font-size: 12px; color: var(--copper); white-space: nowrap; }
 .bom td:last-child { color: var(--muted); }
 
 /* ---------- contact / footer ---------- */
 .contact-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
 footer {
-  border-top: 1px solid var(--panel-edge);
-  padding: 28px 0 40px;
+  border-top: 1px solid var(--panel-edge); padding: 28px 0 40px;
   font-family: var(--mono); font-size: 11.5px; color: var(--muted);
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
 }
+.footer-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; width: 100%; }
 
 @media (max-width: 720px) {
   .about-cols { grid-template-columns: 1fr; gap: 32px; }
@@ -283,7 +340,7 @@ footer {
   .brand { font-size: 11px; letter-spacing: 0.06em; }
   nav.links { gap: 14px; }
   nav.links a { font-size: 11px; }
-  .hero { padding: 64px 0 56px; }
+  .hero { padding: 72px 0 60px; }
 }
 </style>
 </head>
@@ -291,7 +348,7 @@ footer {
 
 <header>
   <div class="wrap nav">
-    <span class="brand">ALOKA<span class="dot">.</span>SENEVIRATNE</span>
+    <button class="brand" id="brand-home">ALOKA<span class="dot">.</span>SENEVIRATNE</button>
     <nav class="links" aria-label="Main navigation">
       <a href="#projects">Projects</a>
       <a href="#about">About</a>
@@ -302,135 +359,148 @@ footer {
 
 <main>
 
-<div class="hero">
-  <svg class="hero-traces" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <g fill="none" stroke="#232329" stroke-width="2">
-      <path d="M -20 80 H 240 L 300 140 H 560"/>
-      <path d="M -20 180 H 160 L 220 240 H 410 L 470 300 H 700"/>
-      <path d="M 1220 60 H 980 L 920 120 H 760"/>
-      <path d="M 1220 320 H 1040 L 980 260 H 860"/>
-      <path d="M 300 420 V 360 L 360 300 H 520"/>
-    </g>
-    <g fill="#2b2b33">
-      <circle cx="560" cy="140" r="6"/><circle cx="560" cy="140" r="2.5" fill="#121214"/>
-      <circle cx="700" cy="300" r="6"/><circle cx="700" cy="300" r="2.5" fill="#121214"/>
-      <circle cx="760" cy="120" r="6"/><circle cx="760" cy="120" r="2.5" fill="#121214"/>
-      <circle cx="860" cy="260" r="6"/><circle cx="860" cy="260" r="2.5" fill="#121214"/>
-      <circle cx="520" cy="300" r="6"/><circle cx="520" cy="300" r="2.5" fill="#121214"/>
-    </g>
-  </svg>
-  <div class="wrap" style="position: relative;">
-    <p class="eyebrow" id="hero-eyebrow">REV 2026.06 / OULU, FINLAND</p>
-    <h1 id="hero-name">Aloka Seneviratne</h1>
-    <p class="tagline" id="hero-tagline">
-      Embedded systems and electronics engineer. I build firmware, sensor systems
-      and signal processing pipelines, from ESP32 environmental monitors to IMU
-      time-series modelling. Currently completing an M.Sc. in Sustainable and
-      Autonomous Systems at the University of Oulu.
-    </p>
-    <div class="hero-actions">
-      <a class="btn solid" href="#projects">View projects</a>
-      <a class="btn" id="hero-github-link" href="#" target="_blank" rel="noopener">GitHub profile</a>
+<!-- ============ HOME VIEW ============ -->
+<div id="home-view" class="view">
+
+  <div class="hero">
+    <div class="hero-glow" id="hero-glow" aria-hidden="true"></div>
+    <svg class="hero-traces" viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="#232329" stroke-width="2" id="trace-base">
+        <path d="M -20 90 H 240 L 300 150 H 560"/>
+        <path d="M -20 200 H 160 L 220 260 H 410 L 470 320 H 700"/>
+        <path d="M 1220 70 H 980 L 920 130 H 760"/>
+        <path d="M 1220 340 H 1040 L 980 280 H 860"/>
+        <path d="M 300 460 V 380 L 360 320 H 520"/>
+      </g>
+      <g fill="none" stroke="#d99a5b" stroke-width="2" id="trace-pulse" opacity="0.9">
+        <path d="M -20 90 H 240 L 300 150 H 560"/>
+        <path d="M -20 200 H 160 L 220 260 H 410 L 470 320 H 700"/>
+        <path d="M 1220 70 H 980 L 920 130 H 760"/>
+        <path d="M 1220 340 H 1040 L 980 280 H 860"/>
+        <path d="M 300 460 V 380 L 360 320 H 520"/>
+      </g>
+      <g fill="#2b2b33">
+        <circle cx="560" cy="150" r="6"/><circle cx="560" cy="150" r="2.5" fill="#121214"/>
+        <circle cx="700" cy="320" r="6"/><circle cx="700" cy="320" r="2.5" fill="#121214"/>
+        <circle cx="760" cy="130" r="6"/><circle cx="760" cy="130" r="2.5" fill="#121214"/>
+        <circle cx="860" cy="280" r="6"/><circle cx="860" cy="280" r="2.5" fill="#121214"/>
+        <circle cx="520" cy="320" r="6"/><circle cx="520" cy="320" r="2.5" fill="#121214"/>
+      </g>
+    </svg>
+    <div class="wrap" style="position: relative; z-index: 1;">
+      <p class="eyebrow">REV 2026.06 / OULU, FINLAND</p>
+      <h1>Aloka Seneviratne</h1>
+      <p class="tagline">
+        Embedded systems and electronics engineer. I build firmware, sensor systems
+        and signal processing pipelines, from ESP32 environmental monitors to IMU
+        time-series modelling. Currently completing an M.Sc. in Sustainable and
+        Autonomous Systems at the University of Oulu.
+      </p>
+      <div class="hero-actions">
+        <a class="btn solid" href="#projects">View projects</a>
+        <a class="btn" id="hero-github-link" href="#" target="_blank" rel="noopener">GitHub profile</a>
+      </div>
     </div>
   </div>
+
+  <section id="projects">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-ref">[ U1 ]</span>
+        <h2>Projects</h2>
+      </div>
+      <div id="repo-status" class="status">Fetching repositories from GitHub...</div>
+      <div id="repo-grid" class="grid" hidden></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-ref">[ U2 ]</span>
+        <h2>About</h2>
+      </div>
+      <div class="about-cols">
+        <div>
+          <p><strong>I like working close to the hardware.</strong> My background runs
+          from engineering physics through embedded firmware, IoT system design and
+          signal processing, with side excursions into FPGA design and technical teaching.</p>
+          <p>Recent work includes a Master's thesis on synthetic IMU time-series
+          generation for Freezing of Gait detection, a BLE mesh sensor architecture
+          for environmental monitoring, and breath cycle detection from respiratory
+          audio in MATLAB.</p>
+          <p>Before moving into embedded engineering I worked in HR software
+          consulting and spent several years lecturing mathematics, which left me
+          with a habit of explaining things clearly.</p>
+        </div>
+        <div>
+          <table class="bom">
+            <caption>Bill of materials: skills</caption>
+            <thead>
+              <tr><th scope="col">Ref</th><th scope="col">Component</th><th scope="col">Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>FW1</td><td>C / C++</td><td>Firmware, GCC, multi-file builds</td></tr>
+              <tr><td>MC1</td><td>ESP32 / Arduino</td><td>Sensors, Wi-Fi, SD logging</td></tr>
+              <tr><td>DSP1</td><td>MATLAB / Python</td><td>Signal processing, modelling</td></tr>
+              <tr><td>NET1</td><td>IoT protocols</td><td>MQTT, BLE mesh, SoftAP</td></tr>
+              <tr><td>HDL1</td><td>SystemVerilog / VHDL</td><td>SoC blocks, QuestaSim</td></tr>
+              <tr><td>DOC1</td><td>Technical writing</td><td>LaTeX, reports, teaching</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-ref">[ J1 ]</span>
+        <h2>Contact</h2>
+      </div>
+      <p style="color: var(--muted); max-width: 56ch;">
+        Open to embedded, electronics and hands-on engineering roles across Europe.
+        The fastest way to reach me:
+      </p>
+      <div class="contact-links" id="contact-links"></div>
+    </div>
+  </section>
+
 </div>
 
-<section id="projects">
+<!-- ============ PROJECT DETAIL VIEW ============ -->
+<div id="project-view" class="view" hidden>
   <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-ref">[ U1 ]</span>
-      <h2>Projects</h2>
-    </div>
-    <div id="repo-status" class="status">Fetching repositories from GitHub...</div>
-    <div id="repo-grid" class="grid" hidden></div>
+    <article class="project" id="project-body"></article>
   </div>
-</section>
-
-<section id="about">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-ref">[ U2 ]</span>
-      <h2>About</h2>
-    </div>
-    <div class="about-cols">
-      <div>
-        <p><strong>I like working close to the hardware.</strong> My background runs
-        from engineering physics through embedded firmware, IoT system design and
-        signal processing, with side excursions into FPGA design and technical teaching.</p>
-        <p>Recent work includes a Master's thesis on synthetic IMU time-series
-        generation for Freezing of Gait detection, a BLE mesh sensor architecture
-        for environmental monitoring, and breath cycle detection from respiratory
-        audio in MATLAB.</p>
-        <p>Before moving into embedded engineering I worked in HR software
-        consulting and spent several years lecturing mathematics, which left me
-        with a habit of explaining things clearly.</p>
-      </div>
-      <div>
-        <table class="bom">
-          <caption>Bill of materials: skills</caption>
-          <thead>
-            <tr><th scope="col">Ref</th><th scope="col">Component</th><th scope="col">Notes</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>FW1</td><td>C / C++</td><td>Firmware, GCC, multi-file builds</td></tr>
-            <tr><td>MC1</td><td>ESP32 / Arduino</td><td>Sensors, Wi-Fi, SD logging</td></tr>
-            <tr><td>DSP1</td><td>MATLAB / Python</td><td>Signal processing, modelling</td></tr>
-            <tr><td>NET1</td><td>IoT protocols</td><td>MQTT, BLE mesh, SoftAP</td></tr>
-            <tr><td>HDL1</td><td>SystemVerilog / VHDL</td><td>SoC blocks, QuestaSim</td></tr>
-            <tr><td>DOC1</td><td>Technical writing</td><td>LaTeX, reports, teaching</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="contact">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-ref">[ J1 ]</span>
-      <h2>Contact</h2>
-    </div>
-    <p style="color: var(--muted); max-width: 56ch;">
-      Open to embedded, electronics and hands-on engineering roles across Europe.
-      The fastest way to reach me:
-    </p>
-    <div class="contact-links" id="contact-links"></div>
-  </div>
-</section>
+</div>
 
 </main>
 
 <footer>
-  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
-    <span id="footer-name">© 2026 Aloka Seneviratne</span>
+  <div class="wrap footer-row">
+    <span>© 2026 Aloka Seneviratne</span>
     <span>Projects pulled live from the GitHub API</span>
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.11/purify.min.js"></script>
 <script>
 /* ============================================================
    CONFIG: this is the only block you need to edit.
    ============================================================ */
 const CONFIG = {
-  // REQUIRED: your GitHub username, exactly as it appears in your profile URL
   githubUsername: "AlokaSeneviratne",
-
-  // Contact links. Add, remove or edit freely.
   links: [
     { label: "Email",    url: "mailto:alokaseneviratne@gmail.com" },
     { label: "GitHub",   url: "https://github.com/AlokaSeneviratne" },
     { label: "LinkedIn", url: "https://www.linkedin.com/in/alokaseneviratne/" },
   ],
-
-  // Repos to hide, by exact name (e.g. config repos, coursework you'd rather skip)
   excludeRepos: ["AlokaSeneviratne.github.io"],
-
-  // Hide forked repositories (recommended: true)
   hideForks: true,
-
-  // Sorting: "stars" or "updated"
-  sortBy: "updated",
+  sortBy: "updated",   // "stars" or "updated"
 };
 
 /* ---------- GitHub language colors (common subset) ---------- */
@@ -443,50 +513,19 @@ const LANG_COLORS = {
   "Go": "#00ADD8", "Kotlin": "#A97BFF", "Swift": "#F05138", "Dart": "#00B4AB",
 };
 
-/* ---------- helpers ---------- */
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const HOVER_CAPABLE = window.matchMedia("(hover: hover)").matches;
+const USER = CONFIG.githubUsername.trim();
+let REPOS = [];           /* cached repo list once loaded */
+let REPOS_READY = false;
 
-/* Draw the hero PCB traces in like a board being routed, then light the vias */
-function animateTraces() {
-  if (REDUCED_MOTION) return;
-  const svg = document.querySelector(".hero-traces");
-  if (!svg) return;
-  svg.querySelectorAll("path").forEach((p, i) => {
-    const len = p.getTotalLength();
-    p.style.strokeDasharray = len;
-    p.style.strokeDashoffset = len;
-  });
-  svg.querySelectorAll("circle").forEach(c => { c.style.opacity = "0"; });
-  svg.getBoundingClientRect(); /* force reflow so the start state applies */
-  svg.querySelectorAll("path").forEach((p, i) => {
-    p.style.transition = "stroke-dashoffset 1.3s cubic-bezier(0.45, 0, 0.2, 1) " + (0.15 + i * 0.18) + "s";
-    p.style.strokeDashoffset = "0";
-  });
-  svg.querySelectorAll("circle").forEach((c, i) => {
-    c.style.transition = "opacity 0.5s ease " + (1.3 + i * 0.08) + "s";
-    c.style.opacity = "1";
-  });
+/* ---------- tiny helpers ---------- */
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text != null) node.textContent = text;
+  return node;
 }
-
-/* Scroll reveal: elements rise in as they enter the viewport */
-const revealObserver = (!REDUCED_MOTION && "IntersectionObserver" in window)
-  ? new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("in");
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" })
-  : null;
-
-function reveal(node, delaySeconds) {
-  if (!revealObserver) return; /* no observer or reduced motion: stay visible */
-  node.style.setProperty("--d", (delaySeconds || 0) + "s");
-  node.classList.add("reveal");
-  revealObserver.observe(node);
-}
-
 function timeAgo(iso) {
   const days = Math.floor((Date.now() - new Date(iso)) / 86400000);
   if (days < 1) return "today";
@@ -494,27 +533,101 @@ function timeAgo(iso) {
   if (days < 365) return Math.floor(days / 30) + "mo ago";
   return Math.floor(days / 365) + "y ago";
 }
-
-function el(tag, cls, text) {
-  const node = document.createElement(tag);
-  if (cls) node.className = cls;
-  if (text != null) node.textContent = text;
-  return node;
+function langDot(language) {
+  const span = el("span");
+  const dot = el("span", "lang-dot");
+  dot.style.background = LANG_COLORS[language] || "#9a9aa4";
+  span.appendChild(dot);
+  span.appendChild(document.createTextNode(language));
+  return span;
+}
+function b64ToUtf8(b64) {
+  const bin = atob((b64 || "").replace(/\n/g, ""));
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return new TextDecoder("utf-8").decode(bytes);
+}
+/* shimmer placeholder shown while the README is fetching */
+function readmeSkeleton() {
+  const wrap = el("div", "sk");
+  const head = el("div", "sk-line"); head.style.height = "24px"; head.style.width = "46%";
+  wrap.appendChild(head);
+  ["94%", "88%", "72%"].forEach(w => { const l = el("div", "sk-line"); l.style.width = w; wrap.appendChild(l); });
+  wrap.appendChild(el("div", "sk-block"));
+  ["90%", "63%"].forEach(w => { const l = el("div", "sk-line"); l.style.width = w; wrap.appendChild(l); });
+  return wrap;
 }
 
-/* ---------- render one repo card ---------- */
+/* ---------- hero motion: cursor glow + trace pulses ---------- */
+function startHeroMotion() {
+  if (REDUCED_MOTION) return;
+  const glow = document.getElementById("hero-glow");
+  const hero = document.querySelector(".hero");
+  if (glow && hero && HOVER_CAPABLE) {
+    let raf = null;
+    hero.addEventListener("pointermove", e => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const r = hero.getBoundingClientRect();
+        glow.style.setProperty("--gx", ((e.clientX - r.left) / r.width * 100) + "%");
+        glow.style.setProperty("--gy", ((e.clientY - r.top) / r.height * 100) + "%");
+        raf = null;
+      });
+    });
+  }
+  /* signal pulses: a short copper dash travels along each trace, looping */
+  const pulses = document.querySelectorAll("#trace-pulse path");
+  pulses.forEach((p, i) => {
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = "10 " + len;
+    p.style.strokeDashoffset = len;
+    p.animate(
+      [{ strokeDashoffset: len }, { strokeDashoffset: -10 }],
+      { duration: 2600 + i * 350, iterations: Infinity, delay: i * 500, easing: "linear" }
+    );
+  });
+}
+
+/* ---------- scroll reveal ---------- */
+const revealObserver = (!REDUCED_MOTION && "IntersectionObserver" in window)
+  ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add("in"); revealObserver.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" })
+  : null;
+function reveal(node, delaySeconds) {
+  if (!revealObserver) return;
+  node.style.setProperty("--d", (delaySeconds || 0) + "s");
+  node.classList.add("reveal");
+  revealObserver.observe(node);
+}
+
+/* ---------- 3D tilt on tiles ---------- */
+function addTilt(card) {
+  if (REDUCED_MOTION || !HOVER_CAPABLE) return;
+  let raf = null;
+  card.addEventListener("pointermove", e => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform =
+        "rotateY(" + (px * 7).toFixed(2) + "deg) rotateX(" + (-py * 7).toFixed(2) +
+        "deg) translateY(-4px) scale(1.015)";
+      raf = null;
+    });
+  });
+  card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+}
+
+/* ---------- build one project tile ---------- */
 function renderCard(repo, index) {
-  const card = el("article", "card");
+  const card = el("a", "card");
+  card.href = "#/project/" + encodeURIComponent(repo.name);
   card.appendChild(el("span", "ref", "U" + (index + 1)));
 
-  const h3 = el("h3");
-  const link = el("a", null, repo.name);
-  link.href = repo.html_url;
-  link.target = "_blank";
-  link.rel = "noopener";
-  h3.appendChild(link);
-  card.appendChild(h3);
-
+  card.appendChild(el("h3", null, repo.name));
   card.appendChild(el("p", "desc", repo.description || "No description yet."));
 
   if (repo.topics && repo.topics.length) {
@@ -524,65 +637,52 @@ function renderCard(repo, index) {
   }
 
   const meta = el("div", "meta");
-  if (repo.language) {
-    const lang = el("span");
-    const dot = el("span", "lang-dot");
-    dot.style.background = LANG_COLORS[repo.language] || "#9a9aa4";
-    lang.appendChild(dot);
-    lang.appendChild(document.createTextNode(repo.language));
-    meta.appendChild(lang);
-  }
-  if (repo.stargazers_count > 0) meta.appendChild(el("span", null, "★ " + repo.stargazers_count));
+  if (repo.language) meta.appendChild(langDot(repo.language));
+  if (repo.stargazers_count > 0) meta.appendChild(el("span", null, "\u2605 " + repo.stargazers_count));
   meta.appendChild(el("span", "spacer"));
+  meta.appendChild(el("span", "open-tag", "Open \u2192"));
   meta.appendChild(el("span", null, timeAgo(repo.pushed_at)));
   card.appendChild(meta);
 
+  addTilt(card);
   return card;
 }
 
-/* ---------- main fetch ---------- */
+/* ---------- load repos ---------- */
 async function loadRepos() {
   const status = document.getElementById("repo-status");
   const grid = document.getElementById("repo-grid");
-  const user = CONFIG.githubUsername.trim();
 
-  if (!user || user === "YOUR_GITHUB_USERNAME") {
+  if (!USER || USER === "YOUR_GITHUB_USERNAME") {
     status.className = "status error";
     status.innerHTML = "Almost there. Open <code>index.html</code>, find the " +
       "<code>CONFIG</code> block near the bottom, and set " +
-      "<code>githubUsername</code> to your GitHub username. " +
-      "Projects will then load automatically.";
+      "<code>githubUsername</code> to your GitHub username.";
     return;
   }
-
   try {
     const res = await fetch(
-      "https://api.github.com/users/" + encodeURIComponent(user) +
-      "/repos?per_page=100&sort=updated"
+      "https://api.github.com/users/" + encodeURIComponent(USER) + "/repos?per_page=100&sort=updated"
     );
-    if (res.status === 404) throw new Error("GitHub user \"" + user + "\" was not found. Check the spelling in CONFIG.");
+    if (res.status === 404) throw new Error("GitHub user \"" + USER + "\" was not found. Check the spelling in CONFIG.");
     if (res.status === 403) throw new Error("GitHub API rate limit reached. Try again in a few minutes.");
     if (!res.ok) throw new Error("GitHub API returned status " + res.status + ".");
 
     let repos = await res.json();
     repos = repos.filter(r =>
-      !r.archived &&
-      !(CONFIG.hideForks && r.fork) &&
-      !CONFIG.excludeRepos.includes(r.name)
+      !r.archived && !(CONFIG.hideForks && r.fork) && !CONFIG.excludeRepos.includes(r.name)
     );
+    if (CONFIG.sortBy === "stars") repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
+    else repos.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
 
-    if (CONFIG.sortBy === "stars") {
-      repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
-    } else {
-      repos.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
-    }
+    REPOS = repos;
+    REPOS_READY = true;
 
     if (!repos.length) {
       status.className = "status";
       status.textContent = "No public repositories to show yet. Push a project to GitHub and refresh.";
       return;
     }
-
     grid.innerHTML = "";
     repos.forEach((repo, i) => {
       const card = renderCard(repo, i);
@@ -597,13 +697,145 @@ async function loadRepos() {
   }
 }
 
-/* ---------- wire up config-driven bits ---------- */
+/* ---------- render the README into a project page ---------- */
+async function renderReadme(repo, mount) {
+  mount.className = "readme";
+  mount.innerHTML = "";
+  mount.appendChild(readmeSkeleton());
+  try {
+    const res = await fetch("https://api.github.com/repos/" + encodeURIComponent(USER) +
+      "/" + encodeURIComponent(repo.name) + "/readme");
+    if (res.status === 404) { mount.innerHTML = "<p>This project does not have a README yet. The source is linked below.</p>"; return; }
+    if (res.status === 403) { mount.innerHTML = "<p>GitHub rate limit reached. Try again in a few minutes, or view the source below.</p>"; return; }
+    if (!res.ok) throw new Error("status " + res.status);
+
+    const data = await res.json();
+    const md = b64ToUtf8(data.content);
+
+    /* derive owner/repo/branch from the raw download URL for relative links */
+    let rawBase = "", blobBase = "";
+    if (data.download_url) {
+      const after = data.download_url.split("raw.githubusercontent.com/")[1];
+      if (after) {
+        const parts = after.split("/");
+        const o = parts[0], rp = parts[1], br = parts[2];
+        rawBase = "https://raw.githubusercontent.com/" + o + "/" + rp + "/" + br + "/";
+        blobBase = "https://github.com/" + o + "/" + rp + "/blob/" + br + "/";
+      }
+    }
+
+    if (!window.marked || !window.DOMPurify) {
+      const pre = el("pre"); pre.appendChild(el("code", null, md)); mount.innerHTML = ""; mount.appendChild(pre); return;
+    }
+
+    let html = window.marked.parse(md, { gfm: true, breaks: false });
+    html = window.DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] });
+    mount.innerHTML = html;
+
+    /* if the README opens with a heading that is basically the repo name, drop it
+       (the page already shows the project title above), to avoid a doubled title */
+    const firstHeading = mount.querySelector("h1, h2");
+    if (firstHeading && mount.firstElementChild === firstHeading) {
+      const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (norm(firstHeading.textContent).indexOf(norm(repo.name)) === 0 ||
+          norm(repo.name).indexOf(norm(firstHeading.textContent)) === 0) {
+        firstHeading.remove();
+      }
+    }
+
+    /* resolve relative images and links against the repo */
+    mount.querySelectorAll("img").forEach(img => {
+      const s = img.getAttribute("src") || "";
+      if (s && !/^(https?:|data:|\/\/)/.test(s) && rawBase) img.src = rawBase + s.replace(/^\.?\//, "");
+      img.loading = "lazy";
+    });
+    mount.querySelectorAll("a").forEach(a => {
+      const href = a.getAttribute("href") || "";
+      if (href && !/^(https?:|#|mailto:|\/\/)/.test(href) && blobBase) a.href = blobBase + href.replace(/^\.?\//, "");
+      if (/^https?:/.test(a.href)) { a.target = "_blank"; a.rel = "noopener"; }
+    });
+  } catch (e) {
+    mount.innerHTML = "<p>Could not load the README right now. The source is linked below.</p>";
+  }
+}
+
+/* ---------- show a project detail page ---------- */
+function showProject(name) {
+  const home = document.getElementById("home-view");
+  const view = document.getElementById("project-view");
+  const body = document.getElementById("project-body");
+  const repo = REPOS.find(r => r.name === name);
+
+  home.hidden = true;
+  view.hidden = false;
+  view.classList.remove("view"); void view.offsetWidth; view.classList.add("view"); /* replay transition */
+  window.scrollTo(0, 0);
+
+  if (!repo) {
+    body.innerHTML = "";
+    const back = el("a", "back", "\u2190 All projects"); back.href = "#/";
+    body.appendChild(back);
+    if (!REPOS_READY) body.appendChild(el("p", "status", "Loading project..."));
+    else body.appendChild(el("p", "status error", "Project \"" + name + "\" was not found."));
+    return;
+  }
+
+  body.innerHTML = "";
+  const back = el("a", "back", "\u2190 All projects"); back.href = "#/";
+  body.appendChild(back);
+
+  const head = el("div", "project-head");
+  const idx = REPOS.indexOf(repo);
+  head.appendChild(el("span", "sec-ref", "[ U" + (idx + 1) + " ]"));
+  head.appendChild(el("h1", null, repo.name));
+  const spec = el("div", "spec");
+  if (repo.language) spec.appendChild(langDot(repo.language));
+  if (repo.stargazers_count > 0) spec.appendChild(el("span", null, "\u2605 " + repo.stargazers_count + " stars"));
+  spec.appendChild(el("span", null, "Updated " + timeAgo(repo.pushed_at)));
+  head.appendChild(spec);
+  if (repo.description) head.appendChild(el("p", "proj-desc", repo.description));
+  body.appendChild(head);
+
+  const readmeMount = el("div", "readme");
+  body.appendChild(readmeMount);
+
+  const cta = el("div", "repo-cta");
+  cta.appendChild(el("span", "label", "Source code"));
+  const ghBtn = el("a", "btn solid", "View on GitHub \u2192");
+  ghBtn.href = repo.html_url; ghBtn.target = "_blank"; ghBtn.rel = "noopener";
+  cta.appendChild(ghBtn);
+  body.appendChild(cta);
+
+  renderReadme(repo, readmeMount);
+}
+
+/* ---------- show the home view (optionally scroll to a section) ---------- */
+function showHome(hash) {
+  document.getElementById("project-view").hidden = true;
+  const home = document.getElementById("home-view");
+  home.hidden = false;
+  const id = (hash || "").replace(/^#/, "");
+  if (id && document.getElementById(id)) {
+    document.getElementById(id).scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth" });
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+
+/* ---------- router ---------- */
+function route() {
+  const h = location.hash;
+  if (h.indexOf("#/project/") === 0) {
+    showProject(decodeURIComponent(h.slice("#/project/".length)));
+  } else {
+    showHome(h === "#/" ? "" : h);
+  }
+}
+
+/* ---------- config-driven bits ---------- */
 function applyConfig() {
-  const user = CONFIG.githubUsername.trim();
   const ghLink = document.getElementById("hero-github-link");
-  ghLink.href = (user && user !== "YOUR_GITHUB_USERNAME")
-    ? "https://github.com/" + user
-    : "https://github.com";
+  ghLink.href = (USER && USER !== "YOUR_GITHUB_USERNAME") ? "https://github.com/" + USER : "https://github.com";
 
   const wrap = document.getElementById("contact-links");
   CONFIG.links.forEach(item => {
@@ -612,14 +844,19 @@ function applyConfig() {
     if (!item.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
     wrap.appendChild(a);
   });
+  document.getElementById("brand-home").addEventListener("click", () => {
+    if (location.hash && location.hash !== "#/") location.hash = "#/"; else showHome("");
+  });
 }
 
+/* ---------- boot ---------- */
 applyConfig();
-animateTraces();
-document.querySelectorAll(".sec-head").forEach(h => reveal(h, 0));
+startHeroMotion();
+document.querySelectorAll("#home-view .sec-head").forEach(h => reveal(h, 0));
 document.querySelectorAll(".about-cols > div").forEach((col, i) => reveal(col, i * 0.1));
 document.querySelectorAll("#contact .wrap > p, #contact .contact-links").forEach((n, i) => reveal(n, i * 0.1));
-loadRepos();
+window.addEventListener("hashchange", route);
+loadRepos().then(route);
 </script>
 
 </body>
