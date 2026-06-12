@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aloka Seneviratne | Embedded Systems Engineer</title>
+<meta name="description" content="Portfolio of Aloka Seneviratne. Embedded systems, IoT, firmware and signal processing projects.">
+<meta name="theme-color" content="#121214">
+<meta property="og:title" content="Aloka Seneviratne | Embedded Systems Engineer">
+<meta property="og:description" content="Embedded systems, IoT, firmware and signal processing projects, pulled live from GitHub.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23121214'/%3E%3Cpath d='M8 42 H24 L36 30 H50' stroke='%23d99a5b' stroke-width='4' fill='none'/%3E%3Ccircle cx='50' cy='30' r='7' fill='%23d99a5b'/%3E%3Ccircle cx='50' cy='30' r='3' fill='%23121214'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   EDIT ME: all personal settings live in the CONFIG block
+   at the top of the <script> section near the bottom.
+   ============================================================ */
+
+:root {
+  --soldermask:   #121214;   /* matte board black, page background */
+  --panel:        #19191d;   /* raised panel */
+  --panel-edge:   #2b2b33;   /* card borders */
+  --silkscreen:   #ece9e2;   /* off-white text, like silkscreen print */
+  --muted:        #9a9aa4;   /* secondary text */
+  --copper:       #d99a5b;   /* copper trace accent */
+  --pad-gold:     #ecc784;   /* highlight gold */
+  --trace:        #232329;   /* faint trace lines */
+
+  --display: "Chakra Petch", sans-serif;
+  --body:    "IBM Plex Sans", sans-serif;
+  --mono:    "IBM Plex Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+body {
+  background: var(--soldermask);
+  color: var(--silkscreen);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+::selection { background: var(--copper); color: var(--soldermask); }
+
+a { color: var(--pad-gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--pad-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- top bar ---------- */
+header {
+  border-bottom: 1px solid var(--panel-edge);
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(18, 18, 20, 0.92);
+  backdrop-filter: blur(6px);
+}
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.brand {
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em;
+  color: var(--silkscreen); text-transform: uppercase;
+}
+.brand .dot { color: var(--copper); }
+nav.links { display: flex; gap: 28px; }
+nav.links a {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  position: relative;
+}
+nav.links a::after {
+  content: ""; position: absolute; left: 0; bottom: -5px;
+  width: 100%; height: 1px; background: var(--copper);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.25s ease;
+}
+nav.links a:hover::after { transform: scaleX(1); }
+nav.links a:hover { color: var(--pad-gold); text-decoration: none; }
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  padding: 96px 0 88px;
+  overflow: hidden;
+}
+.hero-traces {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* hero entrance: staggered rise, disabled automatically by reduced motion */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+.hero .eyebrow   { animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.3, 1) 0.05s both; }
+.hero h1         { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.15s both; }
+.hero .tagline   { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.25s both; }
+.hero-actions    { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.35s both; }
+
+.eyebrow {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--copper);
+  margin-bottom: 18px;
+}
+h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  max-width: 14ch;
+}
+.hero p.tagline {
+  margin-top: 22px;
+  max-width: 56ch;
+  color: var(--muted);
+  font-size: 1.06rem;
+}
+.hero-actions { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; }
+.btn {
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border: 1px solid var(--copper);
+  color: var(--pad-gold);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.btn:hover { background: var(--copper); color: var(--soldermask); text-decoration: none; transform: translateY(-1px); }
+.btn.solid { background: var(--copper); color: var(--soldermask); }
+.btn.solid:hover { background: var(--pad-gold); border-color: var(--pad-gold); }
+
+/* ---------- scroll reveal ---------- */
+.reveal {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition-delay: var(--d, 0s);
+}
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- section scaffolding ---------- */
+section { padding: 72px 0; border-top: 1px solid var(--panel-edge); }
+.sec-head {
+  display: flex; align-items: baseline; gap: 16px;
+  margin-bottom: 36px;
+}
+.sec-ref {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--copper); letter-spacing: 0.15em;
+}
+.sec-head h2 {
+  font-family: var(--display); font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+/* ---------- projects grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  padding: 22px;
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover {
+  border-color: var(--copper);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+.card .ref {
+  position: absolute; top: 14px; right: 16px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--trace); letter-spacing: 0.1em;
+}
+.card:hover .ref { color: var(--copper); }
+.card h3 {
+  font-family: var(--display); font-weight: 600; font-size: 1.05rem;
+  padding-right: 40px;
+  word-break: break-word;
+}
+.card h3 a { color: var(--silkscreen); }
+.card h3 a:hover { color: var(--pad-gold); text-decoration: none; }
+.card p.desc {
+  color: var(--muted); font-size: 0.92rem; flex-grow: 1;
+}
+.topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.topic {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--pad-gold);
+  border: 1px solid var(--panel-edge);
+  padding: 2px 8px;
+}
+.meta {
+  display: flex; align-items: center; gap: 16px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  border-top: 1px solid var(--panel-edge);
+  padding-top: 12px;
+}
+.lang-dot {
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+  margin-right: 6px; vertical-align: -1px;
+}
+.meta .spacer { flex-grow: 1; }
+
+/* ---------- status / error ---------- */
+.status {
+  font-family: var(--mono); font-size: 13px; color: var(--muted);
+  border: 1px dashed var(--panel-edge);
+  padding: 28px; text-align: center;
+}
+.status.error { color: var(--pad-gold); border-color: var(--copper); }
+.status code {
+  background: var(--panel); padding: 2px 6px; color: var(--pad-gold);
+}
+
+/* ---------- about: bill of materials ---------- */
+.about-cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+}
+.about-cols p { color: var(--muted); margin-bottom: 14px; }
+.about-cols p strong { color: var(--silkscreen); font-weight: 600; }
+.bom { width: 100%; border-collapse: collapse; }
+.bom caption {
+  text-align: left; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--copper); padding-bottom: 10px;
+}
+.bom th, .bom td {
+  text-align: left; padding: 9px 12px;
+  border: 1px solid var(--panel-edge);
+  font-size: 0.88rem;
+}
+.bom th {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--panel);
+}
+.bom td:first-child {
+  font-family: var(--mono); font-size: 12px; color: var(--copper);
+  white-space: nowrap;
+}
+.bom td:last-child { color: var(--muted); }
+
+/* ---------- contact / footer ---------- */
+.contact-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+footer {
+  border-top: 1px solid var(--panel-edge);
+  padding: 28px 0 40px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .about-cols { grid-template-columns: 1fr; gap: 32px; }
+  .nav { gap: 12px; }
+  .brand { font-size: 11px; letter-spacing: 0.06em; }
+  nav.links { gap: 14px; }
+  nav.links a { font-size: 11px; }
+  .hero { padding: 64px 0 56px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <span class="brand">ALOKA<span class="dot">.</span>SENEVIRATNE</span>
+    <nav class="links" aria-label="Main navigation">
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <svg class="hero-traces" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="#232329" stroke-width="2">
+      <path d="M -20 80 H 240 L 300 140 H 560"/>
+      <path d="M -20 180 H 160 L 220 240 H 410 L 470 300 H 700"/>
+      <path d="M 1220 60 H 980 L 920 120 H 760"/>
+      <path d="M 1220 320 H 1040 L 980 260 H 860"/>
+      <path d="M 300 420 V 360 L 360 300 H 520"/>
+    </g>
+    <g fill="#2b2b33">
+      <circle cx="560" cy="140" r="6"/><circle cx="560" cy="140" r="2.5" fill="#121214"/>
+      <circle cx="700" cy="300" r="6"/><circle cx="700" cy="300" r="2.5" fill="#121214"/>
+      <circle cx="760" cy="120" r="6"/><circle cx="760" cy="120" r="2.5" fill="#121214"/>
+      <circle cx="860" cy="260" r="6"/><circle cx="860" cy="260" r="2.5" fill="#121214"/>
+      <circle cx="520" cy="300" r="6"/><circle cx="520" cy="300" r="2.5" fill="#121214"/>
+    </g>
+  </svg>
+  <div class="wrap" style="position: relative;">
+    <p class="eyebrow" id="hero-eyebrow">REV 2026.06 / OULU, FINLAND</p>
+    <h1 id="hero-name">Aloka Seneviratne</h1>
+    <p class="tagline" id="hero-tagline">
+      Embedded systems and electronics engineer. I build firmware, sensor systems
+      and signal processing pipelines, from ESP32 environmental monitors to IMU
+      time-series modelling. Currently completing an M.Sc. in Sustainable and
+      Autonomous Systems at the University of Oulu.
+    </p>
+    <div class="hero-actions">
+      <a class="btn solid" href="#projects">View projects</a>
+      <a class="btn" id="hero-github-link" href="#" target="_blank" rel="noopener">GitHub profile</a>
+    </div>
+  </div>
+</div>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-ref">[ U1 ]</span>
+      <h2>Projects</h2>
+    </div>
+    <div id="repo-status" class="status">Fetching repositories from GitHub...</div>
+    <div id="repo-grid" class="grid" hidden></div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-ref">[ U2 ]</span>
+      <h2>About</h2>
+    </div>
+    <div class="about-cols">
+      <div>
+        <p><strong>I like working close to the hardware.</strong> My background runs
+        from engineering physics through embedded firmware, IoT system design and
+        signal processing, with side excursions into FPGA design and technical teaching.</p>
+        <p>Recent work includes a Master's thesis on synthetic IMU time-series
+        generation for Freezing of Gait detection, a BLE mesh sensor architecture
+        for environmental monitoring, and breath cycle detection from respiratory
+        audio in MATLAB.</p>
+        <p>Before moving into embedded engineering I worked in HR software
+        consulting and spent several years lecturing mathematics, which left me
+        with a habit of explaining things clearly.</p>
+      </div>
+      <div>
+        <table class="bom">
+          <caption>Bill of materials: skills</caption>
+          <thead>
+            <tr><th scope="col">Ref</th><th scope="col">Component</th><th scope="col">Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>FW1</td><td>C / C++</td><td>Firmware, GCC, multi-file builds</td></tr>
+            <tr><td>MC1</td><td>ESP32 / Arduino</td><td>Sensors, Wi-Fi, SD logging</td></tr>
+            <tr><td>DSP1</td><td>MATLAB / Python</td><td>Signal processing, modelling</td></tr>
+            <tr><td>NET1</td><td>IoT protocols</td><td>MQTT, BLE mesh, SoftAP</td></tr>
+            <tr><td>HDL1</td><td>SystemVerilog / VHDL</td><td>SoC blocks, QuestaSim</td></tr>
+            <tr><td>DOC1</td><td>Technical writing</td><td>LaTeX, reports, teaching</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-ref">[ J1 ]</span>
+      <h2>Contact</h2>
+    </div>
+    <p style="color: var(--muted); max-width: 56ch;">
+      Open to embedded, electronics and hands-on engineering roles across Europe.
+      The fastest way to reach me:
+    </p>
+    <div class="contact-links" id="contact-links"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
+    <span id="footer-name">© 2026 Aloka Seneviratne</span>
+    <span>Projects pulled live from the GitHub API</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   CONFIG: this is the only block you need to edit.
+   ============================================================ */
+const CONFIG = {
+  // REQUIRED: your GitHub username, exactly as it appears in your profile URL
+  githubUsername: "AlokaSeneviratne",
+
+  // Contact links. Add, remove or edit freely.
+  links: [
+    { label: "Email",    url: "mailto:alokaseneviratne@gmail.com" },
+    { label: "GitHub",   url: "https://github.com/AlokaSeneviratne" },
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/alokaseneviratne/" },
+  ],
+
+  // Repos to hide, by exact name (e.g. config repos, coursework you'd rather skip)
+  excludeRepos: [],
+
+  // Hide forked repositories (recommended: true)
+  hideForks: true,
+
+  // Sorting: "stars" or "updated"
+  sortBy: "updated",
+};
+
+/* ---------- GitHub language colors (common subset) ---------- */
+const LANG_COLORS = {
+  "C": "#555555", "C++": "#f34b7d", "Python": "#3572A5", "MATLAB": "#e16737",
+  "JavaScript": "#f1e05a", "TypeScript": "#3178c6", "HTML": "#e34c26",
+  "CSS": "#663399", "Jupyter Notebook": "#DA5B0B", "SystemVerilog": "#DAE1C2",
+  "VHDL": "#adb2cb", "Verilog": "#b2b7f8", "Shell": "#89e051", "Java": "#b07219",
+  "Assembly": "#6E4C13", "Makefile": "#427819", "TeX": "#3D6117", "Rust": "#dea584",
+  "Go": "#00ADD8", "Kotlin": "#A97BFF", "Swift": "#F05138", "Dart": "#00B4AB",
+};
+
+/* ---------- helpers ---------- */
+const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Draw the hero PCB traces in like a board being routed, then light the vias */
+function animateTraces() {
+  if (REDUCED_MOTION) return;
+  const svg = document.querySelector(".hero-traces");
+  if (!svg) return;
+  svg.querySelectorAll("path").forEach((p, i) => {
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len;
+    p.style.strokeDashoffset = len;
+  });
+  svg.querySelectorAll("circle").forEach(c => { c.style.opacity = "0"; });
+  svg.getBoundingClientRect(); /* force reflow so the start state applies */
+  svg.querySelectorAll("path").forEach((p, i) => {
+    p.style.transition = "stroke-dashoffset 1.3s cubic-bezier(0.45, 0, 0.2, 1) " + (0.15 + i * 0.18) + "s";
+    p.style.strokeDashoffset = "0";
+  });
+  svg.querySelectorAll("circle").forEach((c, i) => {
+    c.style.transition = "opacity 0.5s ease " + (1.3 + i * 0.08) + "s";
+    c.style.opacity = "1";
+  });
+}
+
+/* Scroll reveal: elements rise in as they enter the viewport */
+const revealObserver = (!REDUCED_MOTION && "IntersectionObserver" in window)
+  ? new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" })
+  : null;
+
+function reveal(node, delaySeconds) {
+  if (!revealObserver) return; /* no observer or reduced motion: stay visible */
+  node.style.setProperty("--d", (delaySeconds || 0) + "s");
+  node.classList.add("reveal");
+  revealObserver.observe(node);
+}
+
+function timeAgo(iso) {
+  const days = Math.floor((Date.now() - new Date(iso)) / 86400000);
+  if (days < 1) return "today";
+  if (days < 30) return days + "d ago";
+  if (days < 365) return Math.floor(days / 30) + "mo ago";
+  return Math.floor(days / 365) + "y ago";
+}
+
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text != null) node.textContent = text;
+  return node;
+}
+
+/* ---------- render one repo card ---------- */
+function renderCard(repo, index) {
+  const card = el("article", "card");
+  card.appendChild(el("span", "ref", "U" + (index + 1)));
+
+  const h3 = el("h3");
+  const link = el("a", null, repo.name);
+  link.href = repo.html_url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  h3.appendChild(link);
+  card.appendChild(h3);
+
+  card.appendChild(el("p", "desc", repo.description || "No description yet."));
+
+  if (repo.topics && repo.topics.length) {
+    const topics = el("div", "topics");
+    repo.topics.slice(0, 5).forEach(t => topics.appendChild(el("span", "topic", t)));
+    card.appendChild(topics);
+  }
+
+  const meta = el("div", "meta");
+  if (repo.language) {
+    const lang = el("span");
+    const dot = el("span", "lang-dot");
+    dot.style.background = LANG_COLORS[repo.language] || "#9a9aa4";
+    lang.appendChild(dot);
+    lang.appendChild(document.createTextNode(repo.language));
+    meta.appendChild(lang);
+  }
+  if (repo.stargazers_count > 0) meta.appendChild(el("span", null, "★ " + repo.stargazers_count));
+  meta.appendChild(el("span", "spacer"));
+  meta.appendChild(el("span", null, timeAgo(repo.pushed_at)));
+  card.appendChild(meta);
+
+  return card;
+}
+
+/* ---------- main fetch ---------- */
+async function loadRepos() {
+  const status = document.getElementById("repo-status");
+  const grid = document.getElementById("repo-grid");
+  const user = CONFIG.githubUsername.trim();
+
+  if (!user || user === "YOUR_GITHUB_USERNAME") {
+    status.className = "status error";
+    status.innerHTML = "Almost there. Open <code>index.html</code>, find the " +
+      "<code>CONFIG</code> block near the bottom, and set " +
+      "<code>githubUsername</code> to your GitHub username. " +
+      "Projects will then load automatically.";
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      "https://api.github.com/users/" + encodeURIComponent(user) +
+      "/repos?per_page=100&sort=updated"
+    );
+    if (res.status === 404) throw new Error("GitHub user \"" + user + "\" was not found. Check the spelling in CONFIG.");
+    if (res.status === 403) throw new Error("GitHub API rate limit reached. Try again in a few minutes.");
+    if (!res.ok) throw new Error("GitHub API returned status " + res.status + ".");
+
+    let repos = await res.json();
+    repos = repos.filter(r =>
+      !r.archived &&
+      !(CONFIG.hideForks && r.fork) &&
+      !CONFIG.excludeRepos.includes(r.name)
+    );
+
+    if (CONFIG.sortBy === "stars") {
+      repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
+    } else {
+      repos.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+    }
+
+    if (!repos.length) {
+      status.className = "status";
+      status.textContent = "No public repositories to show yet. Push a project to GitHub and refresh.";
+      return;
+    }
+
+    grid.innerHTML = "";
+    repos.forEach((repo, i) => {
+      const card = renderCard(repo, i);
+      grid.appendChild(card);
+      reveal(card, (i % 6) * 0.07);
+    });
+    status.hidden = true;
+    grid.hidden = false;
+  } catch (err) {
+    status.className = "status error";
+    status.textContent = err.message;
+  }
+}
+
+/* ---------- wire up config-driven bits ---------- */
+function applyConfig() {
+  const user = CONFIG.githubUsername.trim();
+  const ghLink = document.getElementById("hero-github-link");
+  ghLink.href = (user && user !== "YOUR_GITHUB_USERNAME")
+    ? "https://github.com/" + user
+    : "https://github.com";
+
+  const wrap = document.getElementById("contact-links");
+  CONFIG.links.forEach(item => {
+    const a = el("a", "btn", item.label);
+    a.href = item.url;
+    if (!item.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
+    wrap.appendChild(a);
+  });
+}
+
+applyConfig();
+animateTraces();
+document.querySelectorAll(".sec-head").forEach(h => reveal(h, 0));
+document.querySelectorAll(".about-cols > div").forEach((col, i) => reveal(col, i * 0.1));
+document.querySelectorAll("#contact .wrap > p, #contact .contact-links").forEach((n, i) => reveal(n, i * 0.1));
+loadRepos();
+</script>
+
+</body>
+</html>
