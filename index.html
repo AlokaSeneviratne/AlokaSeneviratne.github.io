@@ -457,7 +457,6 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 const CONFIG = {
   githubUsername: "AlokaSeneviratne",
   links: [
-    { label: "Email",    url: "mailto:alokaseneviratne@gmail.com" },
     { label: "GitHub",   url: "https://github.com/AlokaSeneviratne" },
     { label: "LinkedIn", url: "https://www.linkedin.com/in/alokaseneviratne/" },
   ],
@@ -466,7 +465,7 @@ const CONFIG = {
 
   /* Contact form: get a free access key at https://web3forms.com (enter your email,
      they email you a key). Paste it here and the form will deliver to that inbox. */
-  web3formsKey: "aeb89b7c-d7c2-4dbb-883b-fb973bdea239",
+  web3formsKey: "YOUR_WEB3FORMS_ACCESS_KEY",
 
   /* A project counts as "In Progress" if it carries one of these GitHub topics... */
   wipTopics: ["wip", "work-in-progress", "in-progress"],
@@ -511,6 +510,28 @@ function langDot(language) {
   span.appendChild(dot);
   span.appendChild(document.createTextNode(language));
   return span;
+}
+/* turn a repo name into a readable title: separators to spaces, title-case,
+   with known acronyms forced to their correct casing. Display only;
+   the real repo name is still used for routing, the API and the GitHub link. */
+const ACRONYMS = {
+  IMU: "IMU", BLE: "BLE", ESP32: "ESP32", ESP8266: "ESP8266", MQTT: "MQTT", IOT: "IoT",
+  AI: "AI", ML: "ML", CPU: "CPU", GPU: "GPU", FPGA: "FPGA", SOC: "SoC", RSSI: "RSSI",
+  VHDL: "VHDL", RTOS: "RTOS", PCB: "PCB", USB: "USB", I2C: "I2C", SPI: "SPI", UART: "UART",
+  LED: "LED", ADC: "ADC", DAC: "DAC", PWM: "PWM", API: "API", SDK: "SDK", DSP: "DSP",
+  FFT: "FFT", SD: "SD", RF: "RF", UI: "UI", UX: "UX", OS: "OS", "3D": "3D", "2D": "2D",
+  SOFTAP: "SoftAP", MATLAB: "MATLAB", MCU: "MCU", CNN: "CNN", RNN: "RNN", LSTM: "LSTM",
+};
+const MINOR_WORDS = new Set(["of", "the", "and", "in", "on", "for", "to", "a", "an", "with", "at", "by", "vs", "from"]);
+function prettifyName(name) {
+  const words = String(name).replace(/[_-]+/g, " ").trim().split(/\s+/);
+  return words.map((w, i) => {
+    const up = w.toUpperCase();
+    if (ACRONYMS[up]) return ACRONYMS[up];
+    const low = w.toLowerCase();
+    if (i > 0 && MINOR_WORDS.has(low)) return low;
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  }).join(" ");
 }
 function b64ToUtf8(b64) {
   const bin = atob((b64 || "").replace(/\n/g, ""));
@@ -583,7 +604,7 @@ function buildNode(repo, index) {
   node.href = "#/project/" + encodeURIComponent(repo.name);
 
   const card = el("div", "node-card");
-  card.appendChild(el("h3", null, repo.name));
+  card.appendChild(el("h3", null, prettifyName(repo.name)));
 
   const meta = el("div", "node-meta");
   if (repo.language) meta.appendChild(langDot(repo.language));
@@ -748,7 +769,7 @@ function showProject(name) {
   body.appendChild(back);
 
   const head = el("div", "project-head");
-  const h1 = el("h1", null, repo.name);
+  const h1 = el("h1", null, prettifyName(repo.name));
   const badge = el("span", "badge " + (wip ? "wip" : "done"), wip ? "In progress" : "Completed");
   h1.appendChild(badge);
   head.appendChild(h1);
