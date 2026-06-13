@@ -570,6 +570,14 @@ const CONFIG = {
   wipTopics: ["wip", "work-in-progress", "in-progress"],
   /* ...OR if its exact repo name is listed here (use this if you prefer not to use topics). */
   wipRepos: [],
+
+  /* Pinned / highlighted projects. Any repo carrying one of these GitHub topics
+     floats to the top of its grid and renders as a larger featured tile, no
+     matter when it was last pushed. Mark as many as you like. Ordering stays
+     newest-first otherwise. */
+  priorityTopics: ["priority", "featured", "pinned"],
+  /* ...OR list exact repo names here instead of (or alongside) the topics. */
+  priorityRepos: [],
 };
 
 /* ---------- GitHub language colors (common subset) ---------- */
@@ -641,6 +649,11 @@ function isWip(repo) {
   if (CONFIG.wipRepos.includes(repo.name)) return true;
   const topics = (repo.topics || []).map(t => t.toLowerCase());
   return CONFIG.wipTopics.some(k => topics.includes(k));
+}
+function isPriority(repo) {
+  if (CONFIG.priorityRepos.includes(repo.name)) return true;
+  const topics = (repo.topics || []).map(t => t.toLowerCase());
+  return CONFIG.priorityTopics.some(k => topics.includes(k));
 }
 
 /* shimmer placeholder shown while the README is fetching */
@@ -739,9 +752,14 @@ function buildGrid(list, gridId, statusId, emptyMsg) {
     return;
   }
   grid.innerHTML = "";
+  /* If any project is pinned, those are the featured (larger) tiles. With none
+     pinned, fall back to spotlighting the newest build so the grid still leads
+     with something. */
+  const anyPinned = list.some(isPriority);
   list.forEach((repo, i) => {
-    const size = (list.length >= 4 && i === 0) ? "feat" : "";
-    const tile = buildTile(repo, size, size === "feat" ? 3 : 2);
+    const featured = anyPinned ? isPriority(repo) : (list.length >= 4 && i === 0);
+    const size = featured ? "feat" : "";
+    const tile = buildTile(repo, size, featured ? 3 : 2);
     grid.appendChild(tile);
     reveal(tile, (i % 6) * 0.05);
   });
@@ -766,7 +784,11 @@ async function loadRepos() {
 
     let repos = await res.json();
     repos = repos.filter(r => !r.archived && !(CONFIG.hideForks && r.fork) && !CONFIG.excludeRepos.includes(r.name));
-    repos.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+    repos.sort((a, b) => {
+      const pa = isPriority(a) ? 1 : 0, pb = isPriority(b) ? 1 : 0;
+      if (pa !== pb) return pb - pa;                              /* pinned float up */
+      return new Date(b.pushed_at) - new Date(a.pushed_at);       /* otherwise newest first */
+    });
 
     REPOS = repos;
     REPOS_READY = true;
