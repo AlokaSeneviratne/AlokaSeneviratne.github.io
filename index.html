@@ -75,9 +75,12 @@ header {
 }
 .nav { display: flex; align-items: center; justify-content: space-between; height: 62px; }
 .brand {
-  font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em;
-  color: var(--ink); text-transform: uppercase; cursor: pointer; background: none; border: 0;
+  display: inline-flex; align-items: center; color: var(--ink);
+  cursor: pointer; background: none; border: 0; padding: 4px;
+  transition: color 0.16s ease;
 }
+.brand:hover { color: var(--blue); }
+.brand svg { display: block; }
 .brand .dot { color: var(--blue); }
 nav.links { display: flex; gap: 26px; }
 nav.links a {
@@ -234,15 +237,34 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
 .about-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 12px; }
 .about-cols p { color: var(--muted); margin-bottom: 14px; }
 .about-cols p strong { color: var(--ink); font-weight: 600; }
-.bom { width: 100%; border-collapse: collapse; }
-.bom caption { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue); padding-bottom: 10px; }
-.bom th, .bom td { text-align: left; padding: 9px 12px; border: 1px solid var(--edge); font-size: 0.88rem; }
-.bom th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: #f1f5fc; }
-.bom td:first-child { font-family: var(--mono); font-size: 12px; color: var(--blue); white-space: nowrap; }
-.bom td:last-child { color: var(--muted); }
+.skills-title { font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--ink); margin-bottom: 14px; }
+.skill-list { display: grid; }
+.skill-list > div { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 13px 0; border-top: 1px solid var(--edge); }
+.skill-list > div:last-child { border-bottom: 1px solid var(--edge); }
+.skill-list dt { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
+.skill-list dd { color: var(--muted); }
+@media (max-width: 720px) { .skill-list > div { grid-template-columns: 1fr; gap: 4px; } }
 
 /* ---------- contact ---------- */
-.contact-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+.contact-form { max-width: 560px; margin-top: 24px; display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.field input, .field textarea {
+  font-family: var(--body); font-size: 0.98rem; color: var(--ink); width: 100%;
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; padding: 11px 13px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.15); }
+.field textarea { resize: vertical; min-height: 130px; }
+.contact-form .btn { justify-self: start; }
+.contact-form .btn:disabled { opacity: 0.6; cursor: default; }
+.form-status { font-family: var(--mono); font-size: 12px; min-height: 1.2em; margin: 0; }
+.form-status.ok { color: #0a8077; }
+.form-status.err { color: var(--blue-dk); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.direct { margin-top: 38px; }
+.direct > span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.contact-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
 
 /* ---------- footer ---------- */
 footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
@@ -272,7 +294,12 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 
 <header>
   <div class="wrap nav">
-    <button class="brand" id="brand-home">ALOKA<span class="dot">.</span>SENEVIRATNE</button>
+    <button class="brand" id="brand-home" aria-label="Home" title="Home">
+      <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 11.4 12 4l9 7.4"/>
+        <path d="M5.5 9.8V20h13V9.8"/>
+      </svg>
+    </button>
     <nav class="links" aria-label="Main navigation">
       <a href="#/completed" data-route="/completed">Completed</a>
       <a href="#/wip" data-route="/wip">In Progress</a>
@@ -312,9 +339,9 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
       </g>
     </svg>
     <div class="wrap" style="position: relative; z-index: 1;">
-      <p class="eyebrow">REV 2026.06 / OULU, FINLAND</p>
+      <p class="eyebrow">Finland</p>
       <h1>Aloka Seneviratne</h1>
-      <p class="tagline">Embedded systems and electronics engineer building firmware, sensor systems and signal processing pipelines.</p>
+      <p class="tagline">Embedded engineer who takes wireless sensor systems end to end, designing the electronics, writing the firmware, and applying AI to the data they collect.</p>
       <div class="hero-actions">
         <a class="btn solid" href="#/completed">View projects</a>
         <a class="btn" id="hero-github-link" href="#" target="_blank" rel="noopener">GitHub profile</a>
@@ -327,7 +354,6 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 <div id="completed-view" class="view" hidden>
   <div class="wrap page">
     <div class="page-head">
-      <span class="sec-ref">[ U1 ] PIPELINE</span>
       <h2>Completed</h2>
       <p class="lede">Shipped and finished builds, newest first. Hover a node for a quick brief, click to open the project.</p>
     </div>
@@ -340,7 +366,6 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 <div id="wip-view" class="view" hidden style="--accent: var(--teal);">
   <div class="wrap page">
     <div class="page-head">
-      <span class="sec-ref">[ U2 ] PIPELINE</span>
       <h2>In Progress</h2>
       <p class="lede">Active builds on the bench right now, newest first. These carry the <code>wip</code> topic on GitHub.</p>
     </div>
@@ -353,28 +378,22 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 <div id="about-view" class="view" hidden>
   <div class="wrap page">
     <div class="page-head">
-      <span class="sec-ref">[ U3 ]</span>
       <h2>About</h2>
     </div>
     <div class="about-cols">
       <div>
-        <p><strong>I like working close to the hardware.</strong> My background runs from engineering physics through embedded firmware, IoT system design and signal processing, with side excursions into FPGA design and technical teaching.</p>
-        <p>Recent work includes a Master's thesis on synthetic IMU time-series generation for Freezing of Gait detection, a BLE mesh sensor architecture for environmental monitoring, and breath cycle detection from respiratory audio in MATLAB.</p>
-        <p>Before moving into embedded engineering I worked in HR software consulting and spent several years lecturing mathematics, which left me with a habit of explaining things clearly.</p>
+        <p><strong>I like working close to the hardware.</strong> My background started in engineering physics and grew into embedded firmware and IoT system design, along with the sensor and signal work that sits between the electronics and the software. I work across the stack, from low-level firmware and wireless sensor nodes up to the data analysis and machine learning that makes their output useful.</p>
+        <p>Most of my work now is in Python, with the C and C++ from my embedded background still in regular use, and MATLAB when a problem calls for it.</p>
+        <p>I also spent time teaching physics, which is where I got into the habit of explaining technical things plainly.</p>
       </div>
       <div>
-        <table class="bom">
-          <caption>Bill of materials: skills</caption>
-          <thead><tr><th scope="col">Ref</th><th scope="col">Component</th><th scope="col">Notes</th></tr></thead>
-          <tbody>
-            <tr><td>FW1</td><td>C / C++</td><td>Firmware, GCC, multi-file builds</td></tr>
-            <tr><td>MC1</td><td>ESP32 / Arduino</td><td>Sensors, Wi-Fi, SD logging</td></tr>
-            <tr><td>DSP1</td><td>MATLAB / Python</td><td>Signal processing, modelling</td></tr>
-            <tr><td>NET1</td><td>IoT protocols</td><td>MQTT, BLE mesh, SoftAP</td></tr>
-            <tr><td>HDL1</td><td>SystemVerilog / VHDL</td><td>SoC blocks, QuestaSim</td></tr>
-            <tr><td>DOC1</td><td>Technical writing</td><td>LaTeX, reports, teaching</td></tr>
-          </tbody>
-        </table>
+        <h3 class="skills-title">Skills</h3>
+        <dl class="skill-list">
+          <div><dt>Languages</dt><dd>Python, C / C++, MATLAB</dd></div>
+          <div><dt>Embedded &amp; hardware</dt><dd>ESP32 / Arduino, firmware, wireless sensor nodes</dd></div>
+          <div><dt>Connectivity</dt><dd>BLE mesh, MQTT, Wi-Fi / SoftAP</dd></div>
+          <div><dt>Data &amp; ML</dt><dd>Signal processing, machine learning, time-series</dd></div>
+        </dl>
       </div>
     </div>
   </div>
@@ -384,11 +403,32 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 <div id="contact-view" class="view" hidden>
   <div class="wrap page">
     <div class="page-head">
-      <span class="sec-ref">[ J1 ]</span>
       <h2>Contact</h2>
-      <p class="lede">Open to embedded, electronics and hands-on engineering roles across Europe. The fastest ways to reach me:</p>
+      <p class="lede">Open to embedded, electronics and hands-on engineering roles across Europe. Send a message below, or reach me directly.</p>
     </div>
-    <div class="contact-links" id="contact-links"></div>
+
+    <form class="contact-form" id="contact-form" novalidate>
+      <div class="field">
+        <label for="cf-name">Name</label>
+        <input id="cf-name" name="name" type="text" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="cf-email">Email</label>
+        <input id="cf-email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" required></textarea>
+      </div>
+      <label class="hp" aria-hidden="true">Leave this empty <input type="checkbox" name="botcheck" tabindex="-1"></label>
+      <button class="btn solid" type="submit">Send message</button>
+      <p class="form-status" id="cf-status" role="status" aria-live="polite"></p>
+    </form>
+
+    <div class="direct">
+      <span>Or reach me directly</span>
+      <div class="contact-links" id="contact-links"></div>
+    </div>
   </div>
 </div>
 
@@ -423,6 +463,10 @@ const CONFIG = {
   ],
   excludeRepos: ["AlokaSeneviratne.github.io"],
   hideForks: true,
+
+  /* Contact form: get a free access key at https://web3forms.com (enter your email,
+     they email you a key). Paste it here and the form will deliver to that inbox. */
+  web3formsKey: "aeb89b7c-d7c2-4dbb-883b-fb973bdea239",
 
   /* A project counts as "In Progress" if it carries one of these GitHub topics... */
   wipTopics: ["wip", "work-in-progress", "in-progress"],
@@ -539,7 +583,6 @@ function buildNode(repo, index) {
   node.href = "#/project/" + encodeURIComponent(repo.name);
 
   const card = el("div", "node-card");
-  card.appendChild(el("span", "ref", "U" + (index + 1)));
   card.appendChild(el("h3", null, repo.name));
 
   const meta = el("div", "node-meta");
@@ -705,7 +748,6 @@ function showProject(name) {
   body.appendChild(back);
 
   const head = el("div", "project-head");
-  head.appendChild(el("span", "sec-ref", "[ PROJECT ]"));
   const h1 = el("h1", null, repo.name);
   const badge = el("span", "badge " + (wip ? "wip" : "done"), wip ? "In progress" : "Completed");
   h1.appendChild(badge);
@@ -762,6 +804,64 @@ function route() {
   }
 }
 
+/* ---------- contact form ---------- */
+function initContactForm() {
+  const form = document.getElementById("contact-form");
+  if (!form) return;
+  const status = document.getElementById("cf-status");
+  const btn = form.querySelector("button[type=submit]");
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (form.querySelector('[name="botcheck"]').checked) return; /* bot trap */
+
+    /* native validation (required fields, email format) */
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    const name = form.querySelector('[name="name"]').value.trim();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const message = form.querySelector('[name="message"]').value.trim();
+
+    if (!CONFIG.web3formsKey || CONFIG.web3formsKey === "YOUR_WEB3FORMS_ACCESS_KEY") {
+      status.className = "form-status err";
+      status.textContent = "Form not configured yet. Add a Web3Forms access key in CONFIG.";
+      return;
+    }
+
+    const payload = {
+      access_key: CONFIG.web3formsKey,
+      name: name, email: email, message: message,
+      subject: "Portfolio message from " + name,
+      from_name: "Portfolio contact form",
+    };
+
+    const label = btn.textContent;
+    btn.disabled = true; btn.textContent = "Sending...";
+    status.className = "form-status"; status.textContent = "";
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const out = await res.json();
+      if (out.success) {
+        status.className = "form-status ok";
+        status.textContent = "Thanks. Your message has been sent.";
+        form.reset();
+      } else {
+        status.className = "form-status err";
+        status.textContent = out.message || "Something went wrong. Please email me directly.";
+      }
+    } catch (err) {
+      status.className = "form-status err";
+      status.textContent = "Could not send right now. Please email me directly.";
+    } finally {
+      btn.disabled = false; btn.textContent = label;
+    }
+  });
+}
+
 /* ---------- config-driven bits ---------- */
 function applyConfig() {
   const ghLink = document.getElementById("hero-github-link");
@@ -781,6 +881,7 @@ function applyConfig() {
 
 /* ---------- boot ---------- */
 applyConfig();
+initContactForm();
 startHeroMotion();
 window.addEventListener("hashchange", route);
 loadRepos().then(route);
