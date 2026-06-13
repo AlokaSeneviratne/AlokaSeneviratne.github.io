@@ -13,6 +13,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+/* Set the theme on <html> before the page paints so there is no flash. The day
+   and night boundary hours below must match dayStartHour / nightStartHour in CONFIG. */
+(function () {
+  try {
+    var o = localStorage.getItem("portfolio-theme"); // "auto" | "light" | "dark"
+    var night;
+    if (o === "dark") night = true;
+    else if (o === "light") night = false;
+    else { var h = new Date().getHours(); night = (h < 7 || h >= 19); }
+    document.documentElement.setAttribute("data-theme", night ? "night" : "day");
+  } catch (e) {}
+})();
+</script>
 <style>
 /* ============================================================
    EDIT ME: all personal settings live in the CONFIG block
@@ -30,11 +44,55 @@
   --teal:    #0fb5ae;   /* secondary accent (in progress) */
   --trace:   #c9d6ea;   /* hero trace lines */
 
+  /* surfaces and tints that used to be hard-coded, lifted into tokens so the
+     night theme below can flip every one of them in a single place */
+  --chip-bg:    #eef3fe;   /* topic / badge chip fill */
+  --chip-edge:  #d7e3fb;   /* topic / badge chip border */
+  --code-bg:    #eef1f7;   /* inline code, table head, shimmer */
+  --code-bg-2:  #f7f9fc;   /* code blocks */
+  --readme-ink: #2f3a52;   /* rendered README body text */
+  --ok:         #0a8077;   /* success text */
+  --glow:       rgba(47, 109, 246, 0.10);   /* hero glow, soft accents */
+  --lift:       rgba(21, 32, 58, 0.13);     /* card hover shadow */
+  --btn-glow:   rgba(47, 109, 246, 0.25);   /* button hover shadow */
+  --ring:       rgba(47, 109, 246, 0.15);   /* input focus ring */
+
   --accent:  var(--blue);   /* per-page accent, overridden on the in-progress view */
 
   --display: "Chakra Petch", sans-serif;
   --body:    "IBM Plex Sans", sans-serif;
   --mono:    "IBM Plex Mono", monospace;
+
+  color-scheme: light;
+}
+
+/* ===== Night mode: matte black board with copper + gold accents. Set on <html>
+   as data-theme="night" by the script, automatically from the visitor's local
+   clock or from their manual choice. Every value here is a straight override of
+   a :root token, so the rest of the stylesheet needs no theme-specific rules. === */
+html[data-theme="night"] {
+  --bg:      #121214;   /* matte board black, page background */
+  --panel:   #19191d;   /* raised panel */
+  --edge:    #2b2b33;   /* card borders, dividers */
+  --ink:     #ece9e2;   /* primary text */
+  --muted:   #9a9aa4;   /* secondary text */
+  --blue:    #d99a5b;   /* copper, primary accent (completed) */
+  --blue-dk: #e7b079;   /* lighter copper for links / hover on dark */
+  --teal:    #ecc784;   /* gold, secondary accent (in progress) */
+  --trace:   #2b2b33;   /* hero trace lines */
+
+  --chip-bg:    #241d14;
+  --chip-edge:  #3a2e1d;
+  --code-bg:    #202024;
+  --code-bg-2:  #1c1c20;
+  --readme-ink: #cfd0d6;
+  --ok:         #4cc2a8;
+  --glow:       rgba(217, 154, 91, 0.12);
+  --lift:       rgba(0, 0, 0, 0.55);
+  --btn-glow:   rgba(217, 154, 91, 0.28);
+  --ring:       rgba(217, 154, 91, 0.22);
+
+  color-scheme: dark;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -94,6 +152,20 @@ nav.links a::after {
 nav.links a:hover::after, nav.links a.active::after { transform: scaleX(1); }
 nav.links a:hover, nav.links a.active { color: var(--ink); text-decoration: none; }
 
+/* ---------- theme toggle ---------- */
+.nav-right { display: flex; align-items: center; gap: 22px; }
+.theme-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); background: var(--panel); border: 1px solid var(--edge);
+  border-radius: 999px; padding: 6px 13px 6px 11px; cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.theme-toggle:hover { color: var(--ink); border-color: var(--accent); box-shadow: 0 6px 16px var(--glow); }
+.theme-ic { display: inline-flex; color: var(--accent); }
+.theme-ic svg { width: 15px; height: 15px; display: block; }
+.theme-label { line-height: 1; }
+
 /* ---------- view transitions ---------- */
 .view { animation: viewIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -109,9 +181,13 @@ nav.links a:hover, nav.links a.active { color: var(--ink); text-decoration: none
 /* ---------- hero (home) ---------- */
 .hero { position: relative; padding: 132px 0 128px; overflow: hidden; min-height: 72vh; display: flex; align-items: center; }
 .hero-traces { position: absolute; inset: 0; pointer-events: none; opacity: 0.8; }
+.trace-base { stroke: var(--trace); }
+.trace-live { stroke: var(--blue); }
+.via-ring  { fill: var(--trace); }
+.via-core  { fill: var(--bg); }
 .hero-glow {
   position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background: radial-gradient(460px circle at var(--gx, 32%) var(--gy, 42%), rgba(47, 109, 246, 0.10), transparent 60%);
+  background: radial-gradient(460px circle at var(--gx, 32%) var(--gy, 42%), var(--glow), transparent 60%);
   transition: background 0.2s ease;
 }
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
@@ -129,7 +205,7 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
   padding: 13px 26px; border: 1px solid var(--blue); color: var(--blue); background: transparent; cursor: pointer;
   transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
-.btn:hover { background: var(--blue); color: #fff; text-decoration: none; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(47, 109, 246, 0.25); }
+.btn:hover { background: var(--blue); color: #fff; text-decoration: none; transform: translateY(-2px); box-shadow: 0 10px 24px var(--btn-glow); }
 .btn.solid { background: var(--blue); color: #fff; }
 .btn.solid:hover { background: var(--blue-dk); border-color: var(--blue-dk); }
 
@@ -138,53 +214,60 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
 
-/* ---------- timeline / pipeline ---------- */
-.timeline { position: relative; max-width: 880px; margin: 26px auto 0; padding: 8px 0; }
-.timeline::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--edge); transform: translateX(-50%); }
-.node { position: relative; width: 50%; padding: 16px 50px; display: block; color: inherit; }
-.node.left  { left: 0; }
-.node.right { left: 50%; }
-.node::after { content: ""; position: absolute; top: 30px; width: 15px; height: 15px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--accent); z-index: 2; }
-.node.left::after  { right: -8px; }
-.node.right::after { left: -8px; }
-.node::before { content: ""; position: absolute; top: 36px; height: 2px; width: 36px; background: var(--edge); }
-.node.left::before  { right: 15px; }
-.node.right::before { left: 15px; }
-
-.node-card {
-  background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 18px 20px; position: relative;
+/* ---------- project grid (bento) ---------- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(180px, auto);
+  grid-auto-flow: dense;
+  gap: 16px;
+  margin-top: 28px;
+}
+.tile {
+  position: relative; display: flex; flex-direction: column;
+  grid-column: span 2;
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 14px;
+  padding: 20px 20px 18px; color: inherit; overflow: hidden;
   box-shadow: 0 1px 2px rgba(21, 32, 58, 0.05);
-  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
-.node:hover .node-card { border-color: var(--accent); box-shadow: 0 16px 34px rgba(21, 32, 58, 0.13); transform: translateY(-2px); }
-.node-card .ref { position: absolute; top: 14px; right: 16px; font-family: var(--mono); font-size: 11px; color: var(--edge); letter-spacing: 0.1em; transition: color 0.18s ease; }
-.node:hover .node-card .ref { color: var(--accent); }
-.node-card h3 { font-family: var(--display); font-weight: 600; font-size: 1.12rem; padding-right: 36px; word-break: break-word; color: var(--ink); }
-.node:hover .node-card h3 { color: var(--accent); }
-.node-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 12px; }
-.lang-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
-.node-meta .spacer { flex-grow: 1; }
-.open-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; opacity: 0; transition: opacity 0.18s ease; }
-.node:hover .open-tag { opacity: 1; }
+.tile.feat { grid-column: span 4; }
 
-/* the hover pop */
-.pop {
-  position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) scale(0.9);
-  transform-origin: bottom center; width: 268px; max-width: 78vw;
-  background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 14px 16px;
-  box-shadow: 0 18px 44px rgba(21, 32, 58, 0.18); opacity: 0; pointer-events: none; z-index: 6;
-  transition: opacity 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* a faint right-angle trace in the top corner, the PCB motif carried onto the card */
+.tile::before {
+  content: ""; position: absolute; top: 0; right: 0; width: 56px; height: 56px; pointer-events: none;
+  background:
+    linear-gradient(to left, var(--accent), transparent) top right / 56px 2px no-repeat,
+    linear-gradient(to bottom, var(--accent), transparent) top right / 2px 56px no-repeat;
+  opacity: 0.25; transition: opacity 0.2s ease;
 }
-.node:hover .pop { opacity: 1; transform: translateX(-50%) scale(1); }
-.pop::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: var(--panel); filter: drop-shadow(0 1px 0 var(--edge)); }
-.pop-desc { color: var(--ink); font-size: 0.9rem; margin-bottom: 10px; }
-.pop .topics { display: flex; flex-wrap: wrap; gap: 6px; }
-.topic { font-family: var(--mono); font-size: 10.5px; color: var(--blue-dk); background: #eef3fe; border: 1px solid #d7e3fb; padding: 2px 8px; border-radius: 4px; }
+.tile:hover { border-color: var(--accent); box-shadow: 0 18px 38px var(--lift); transform: translateY(-3px); text-decoration: none; }
+.tile:hover::before { opacity: 0.75; }
+
+.tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.tile-title { font-family: var(--display); font-weight: 600; font-size: 1.12rem; line-height: 1.2; color: var(--ink); word-break: break-word; transition: color 0.2s ease; }
+.tile:hover .tile-title { color: var(--accent); }
+.tile.feat .tile-title { font-size: 1.55rem; }
+.tile-open { flex-shrink: 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); opacity: 0; transform: translateX(-4px); transition: opacity 0.2s ease, transform 0.2s ease; white-space: nowrap; }
+.tile:hover .tile-open { opacity: 1; transform: none; }
+.tile-desc { color: var(--muted); font-size: 0.92rem; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tile.feat .tile-desc { font-size: 0.98rem; -webkit-line-clamp: 3; line-clamp: 3; max-width: 70ch; }
+.tile-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
+.tile-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: auto; padding-top: 14px; }
+.tile-meta .spacer { flex-grow: 1; }
+.lang-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.topic { font-family: var(--mono); font-size: 10.5px; color: var(--blue-dk); background: var(--chip-bg); border: 1px solid var(--chip-edge); padding: 2px 8px; border-radius: 4px; }
+
+/* tablet: four columns, featured spans the full width */
+@media (max-width: 980px) {
+  .bento { grid-template-columns: repeat(4, 1fr); }
+  .tile.feat { grid-column: span 4; }
+}
 
 /* ---------- status / empty ---------- */
 .status { font-family: var(--mono); font-size: 13px; color: var(--muted); border: 1px dashed var(--edge); padding: 30px; text-align: center; border-radius: 10px; max-width: 560px; margin: 26px auto 0; }
 .status.error { color: var(--blue-dk); border-color: var(--blue); }
-.status code { background: #eef3fe; padding: 2px 6px; color: var(--blue-dk); border-radius: 3px; }
+.status code { background: var(--chip-bg); padding: 2px 6px; color: var(--blue-dk); border-radius: 3px; }
 
 /* ---------- project detail ---------- */
 .project { padding: 64px 0 60px; }
@@ -194,7 +277,8 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
 .project-head .sec-ref { display: block; margin-bottom: 12px; font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.15em; }
 .badge { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-left: 12px; vertical-align: 3px; }
 .badge.wip { background: #e3f7f5; color: #0a8077; border: 1px solid #b5e8e3; }
-.badge.done { background: #eef3fe; color: var(--blue-dk); border: 1px solid #d7e3fb; }
+html[data-theme="night"] .badge.wip { background: #2a2113; color: #ecc784; border-color: #41331c; }
+.badge.done { background: var(--chip-bg); color: var(--blue-dk); border: 1px solid var(--chip-edge); }
 .project-head h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; max-width: none; word-break: break-word; }
 .spec { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 18px; }
 .proj-desc { color: var(--muted); margin-top: 16px; font-size: 1.05rem; max-width: 70ch; }
@@ -206,27 +290,27 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
 .readme h1 { font-size: 1.7rem; border-bottom: 1px solid var(--edge); padding-bottom: 0.3em; }
 .readme h2 { font-size: 1.4rem; border-bottom: 1px solid var(--edge); padding-bottom: 0.25em; }
 .readme h3 { font-size: 1.15rem; }
-.readme p, .readme li { color: #2f3a52; }
+.readme p, .readme li { color: var(--readme-ink); }
 .readme p { margin: 0.9em 0; }
 .readme ul, .readme ol { margin: 0.9em 0 0.9em 1.4em; }
 .readme li { margin: 0.3em 0; }
 .readme a { color: var(--blue-dk); }
-.readme code { font-family: var(--mono); font-size: 0.86em; background: #eef1f7; border: 1px solid var(--edge); padding: 1px 6px; border-radius: 3px; color: #2f3a52; }
-.readme pre { background: #f7f9fc; border: 1px solid var(--edge); padding: 16px 18px; overflow-x: auto; margin: 1.1em 0; border-radius: 8px; }
-.readme pre code { background: none; border: 0; padding: 0; color: #2f3a52; font-size: 0.85rem; }
+.readme code { font-family: var(--mono); font-size: 0.86em; background: var(--code-bg); border: 1px solid var(--edge); padding: 1px 6px; border-radius: 3px; color: var(--readme-ink); }
+.readme pre { background: var(--code-bg-2); border: 1px solid var(--edge); padding: 16px 18px; overflow-x: auto; margin: 1.1em 0; border-radius: 8px; }
+.readme pre code { background: none; border: 0; padding: 0; color: var(--readme-ink); font-size: 0.85rem; }
 .readme blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 1.1em 0; color: var(--muted); }
 .readme img { max-width: 100%; height: auto; margin: 0.6em 0; border-radius: 6px; }
 .readme table { border-collapse: collapse; margin: 1.1em 0; width: 100%; display: block; overflow-x: auto; }
 .readme th, .readme td { border: 1px solid var(--edge); padding: 8px 12px; text-align: left; font-size: 0.9rem; }
-.readme th { background: #f1f5fc; font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.readme th { background: var(--code-bg); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
 .readme hr { border: 0; border-top: 1px solid var(--edge); margin: 1.6em 0; }
 
 /* README loading shimmer */
 .sk { max-width: 780px; }
-.sk-line, .sk-block { position: relative; overflow: hidden; background: #eef1f7; border: 1px solid var(--edge); border-radius: 4px; }
+.sk-line, .sk-block { position: relative; overflow: hidden; background: var(--code-bg); border: 1px solid var(--edge); border-radius: 4px; }
 .sk-line { height: 14px; margin: 14px 0; }
 .sk-block { height: 130px; margin: 20px 0; }
-.sk-line::after, .sk-block::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(47, 109, 246, 0.10), transparent); transform: translateX(-100%); animation: shimmer 1.5s infinite; }
+.sk-line::after, .sk-block::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, var(--glow), transparent); transform: translateX(-100%); animation: shimmer 1.5s infinite; }
 @keyframes shimmer { 100% { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) { .sk-line::after, .sk-block::after { animation: none; } }
 
@@ -254,12 +338,12 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
   background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; padding: 11px 13px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.15); }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--ring); }
 .field textarea { resize: vertical; min-height: 130px; }
 .contact-form .btn { justify-self: start; }
 .contact-form .btn:disabled { opacity: 0.6; cursor: default; }
 .form-status { font-family: var(--mono); font-size: 12px; min-height: 1.2em; margin: 0; }
-.form-status.ok { color: #0a8077; }
+.form-status.ok { color: var(--ok); }
 .form-status.err { color: var(--blue-dk); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .direct { margin-top: 38px; }
@@ -276,17 +360,19 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
   .brand { font-size: 11px; letter-spacing: 0.05em; }
   nav.links { gap: 13px; }
   nav.links a { font-size: 10.5px; }
+  .nav-right { gap: 12px; }
+  .theme-label { display: none; }
+  .theme-toggle { padding: 6px 9px; }
   .hero { padding: 84px 0 72px; min-height: 0; }
 
-  /* timeline collapses to a single left rail */
-  .timeline::before { left: 18px; }
-  .node, .node.left, .node.right { width: 100%; left: 0; padding: 12px 0 12px 46px; }
-  .node::after, .node.left::after, .node.right::after { left: 11px; right: auto; }
-  .node::before, .node.left::before, .node.right::before { left: 18px; right: auto; width: 24px; }
-  /* pop becomes an inline panel since touch has no hover */
-  .pop { position: static; transform: none; opacity: 1; pointer-events: auto; width: auto; max-width: none; box-shadow: none; margin-top: 12px; }
-  .pop::after { display: none; }
-  .node:hover .pop { transform: none; }
+  /* grid stacks to a single column, every tile full width */
+  .bento { grid-template-columns: 1fr; grid-auto-rows: minmax(170px, auto); }
+  .tile, .tile.feat, .tile.tall { grid-column: auto; grid-row: auto; }
+  .tile.feat .tile-title { font-size: 1.4rem; }
+  .tile.feat .tile-desc { -webkit-line-clamp: 3; line-clamp: 3; }
+  /* touch has no hover, so keep the open cue and corner trace visible */
+  .tile-open { opacity: 1; transform: none; }
+  .tile::before { opacity: 0.5; }
 }
 </style>
 </head>
@@ -300,12 +386,18 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
         <path d="M5.5 9.8V20h13V9.8"/>
       </svg>
     </button>
-    <nav class="links" aria-label="Main navigation">
-      <a href="#/completed" data-route="/completed">Completed</a>
-      <a href="#/wip" data-route="/wip">In Progress</a>
-      <a href="#/about" data-route="/about">About</a>
-      <a href="#/contact" data-route="/contact">Contact</a>
-    </nav>
+    <div class="nav-right">
+      <nav class="links" aria-label="Main navigation">
+        <a href="#/completed" data-route="/completed">Completed</a>
+        <a href="#/wip" data-route="/wip">In Progress</a>
+        <a href="#/about" data-route="/about">About</a>
+        <a href="#/contact" data-route="/contact">Contact</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch colour theme">
+        <span class="theme-ic" id="theme-ic" aria-hidden="true"></span>
+        <span class="theme-label" id="theme-label">Auto</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -316,26 +408,26 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
   <div class="hero">
     <div class="hero-glow" id="hero-glow" aria-hidden="true"></div>
     <svg class="hero-traces" viewBox="0 0 1200 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g fill="none" stroke="#c9d6ea" stroke-width="2">
+      <g class="trace-base" fill="none" stroke-width="2">
         <path d="M -20 90 H 240 L 300 150 H 560"/>
         <path d="M -20 200 H 160 L 220 260 H 410 L 470 320 H 700"/>
         <path d="M 1220 70 H 980 L 920 130 H 760"/>
         <path d="M 1220 340 H 1040 L 980 280 H 860"/>
         <path d="M 300 460 V 380 L 360 320 H 520"/>
       </g>
-      <g fill="none" stroke="#2f6df6" stroke-width="2" id="trace-pulse" opacity="0.85">
+      <g class="trace-live" fill="none" stroke-width="2" id="trace-pulse" opacity="0.85">
         <path d="M -20 90 H 240 L 300 150 H 560"/>
         <path d="M -20 200 H 160 L 220 260 H 410 L 470 320 H 700"/>
         <path d="M 1220 70 H 980 L 920 130 H 760"/>
         <path d="M 1220 340 H 1040 L 980 280 H 860"/>
         <path d="M 300 460 V 380 L 360 320 H 520"/>
       </g>
-      <g fill="#c9d6ea">
-        <circle cx="560" cy="150" r="6"/><circle cx="560" cy="150" r="2.5" fill="#f4f7fb"/>
-        <circle cx="700" cy="320" r="6"/><circle cx="700" cy="320" r="2.5" fill="#f4f7fb"/>
-        <circle cx="760" cy="130" r="6"/><circle cx="760" cy="130" r="2.5" fill="#f4f7fb"/>
-        <circle cx="860" cy="280" r="6"/><circle cx="860" cy="280" r="2.5" fill="#f4f7fb"/>
-        <circle cx="520" cy="320" r="6"/><circle cx="520" cy="320" r="2.5" fill="#f4f7fb"/>
+      <g class="via-ring">
+        <circle cx="560" cy="150" r="6"/><circle cx="560" cy="150" r="2.5" class="via-core"/>
+        <circle cx="700" cy="320" r="6"/><circle cx="700" cy="320" r="2.5" class="via-core"/>
+        <circle cx="760" cy="130" r="6"/><circle cx="760" cy="130" r="2.5" class="via-core"/>
+        <circle cx="860" cy="280" r="6"/><circle cx="860" cy="280" r="2.5" class="via-core"/>
+        <circle cx="520" cy="320" r="6"/><circle cx="520" cy="320" r="2.5" class="via-core"/>
       </g>
     </svg>
     <div class="wrap" style="position: relative; z-index: 1;">
@@ -355,10 +447,10 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
   <div class="wrap page">
     <div class="page-head">
       <h2>Completed</h2>
-      <p class="lede">Shipped and finished builds, newest first. Hover a node for a quick brief, click to open the project.</p>
+      <p class="lede">Shipped and finished builds, newest first. Open a tile for the full write-up and its README.</p>
     </div>
     <div id="completed-status" class="status">Fetching repositories from GitHub...</div>
-    <div id="completed-timeline" class="timeline" hidden></div>
+    <div id="completed-grid" class="bento" hidden></div>
   </div>
 </div>
 
@@ -370,7 +462,7 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
       <p class="lede">Active builds on the bench right now, newest first. These carry the <code>wip</code> topic on GitHub.</p>
     </div>
     <div id="wip-status" class="status">Fetching repositories from GitHub...</div>
-    <div id="wip-timeline" class="timeline" hidden></div>
+    <div id="wip-grid" class="bento" hidden></div>
   </div>
 </div>
 
@@ -389,10 +481,10 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
       <div>
         <h3 class="skills-title">Skills</h3>
         <dl class="skill-list">
-          <div><dt>Languages</dt><dd>Python, C / C++, MATLAB, Qt</dd></div>
-          <div><dt>Embedded &amp; hardware</dt><dd>ESP32, Arduino, Raspberry pi, Firmware, Wireless sensor nodes</dd></div>
+          <div><dt>Languages</dt><dd>Python, C / C++, MATLAB</dd></div>
+          <div><dt>Embedded &amp; hardware</dt><dd>ESP32 / Arduino, firmware, wireless sensor nodes</dd></div>
           <div><dt>Connectivity</dt><dd>BLE mesh, MQTT, Wi-Fi / SoftAP</dd></div>
-          <div><dt>Data &amp; ML</dt><dd>Signal processing, Machine Learning, Data Acquisition</dd></div>
+          <div><dt>Data &amp; ML</dt><dd>Signal processing, machine learning, time-series</dd></div>
         </dl>
       </div>
     </div>
@@ -404,7 +496,7 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
   <div class="wrap page">
     <div class="page-head">
       <h2>Contact</h2>
-      <p class="lede">Open to Embedded, IoT, Edge AI and hands-on engineering roles. Send a message below to reach me directly.</p>
+      <p class="lede">Open to embedded, electronics and hands-on engineering roles across Europe. Send a message below, or reach me directly.</p>
     </div>
 
     <form class="contact-form" id="contact-form" novalidate>
@@ -426,7 +518,7 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
     </form>
 
     <div class="direct">
-      <span>Need more info?</span>
+      <span>Or reach me directly</span>
       <div class="contact-links" id="contact-links"></div>
     </div>
   </div>
@@ -463,9 +555,16 @@ const CONFIG = {
   excludeRepos: ["AlokaSeneviratne.github.io"],
   hideForks: true,
 
+  /* Night mode switches automatically by each visitor's own local clock, so a
+     visitor in daytime sees the light theme while someone where it is already
+     night sees the dark one. Day runs from dayStartHour up to nightStartHour
+     (24h clock). A toggle in the header lets anyone override the automatic pick. */
+  dayStartHour: 7,
+  nightStartHour: 19,
+
   /* Contact form: get a free access key at https://web3forms.com (enter your email,
      they email you a key). Paste it here and the form will deliver to that inbox. */
-  web3formsKey: "YOUR_WEB3FORMS_ACCESS_KEY",
+  web3formsKey: "aeb89b7c-d7c2-4dbb-883b-fb973bdea239",
 
   /* A project counts as "In Progress" if it carries one of these GitHub topics... */
   wipTopics: ["wip", "work-in-progress", "in-progress"],
@@ -598,52 +697,55 @@ function reveal(node, delaySeconds) {
   revealObserver.observe(node);
 }
 
-/* ---------- build one pipeline node ---------- */
-function buildNode(repo, index) {
-  const node = el("a", "node " + (index % 2 === 0 ? "left" : "right"));
-  node.href = "#/project/" + encodeURIComponent(repo.name);
+/* ---------- build one project tile ---------- */
+function buildTile(repo, sizeClass, descLines) {
+  const tile = el("a", "tile" + (sizeClass ? " " + sizeClass : ""));
+  tile.href = "#/project/" + encodeURIComponent(repo.name);
 
-  const card = el("div", "node-card");
-  card.appendChild(el("h3", null, prettifyName(repo.name)));
+  const top = el("div", "tile-top");
+  top.appendChild(el("h3", "tile-title", prettifyName(repo.name)));
+  top.appendChild(el("span", "tile-open", "Open \u2192"));
+  tile.appendChild(top);
 
-  const meta = el("div", "node-meta");
+  tile.appendChild(el("p", "tile-desc", repo.description || "No description yet."));
+
+  if (repo.topics && repo.topics.length) {
+    const topics = el("div", "tile-topics");
+    repo.topics.slice(0, descLines >= 4 ? 6 : 4).forEach(t => topics.appendChild(el("span", "topic", t)));
+    tile.appendChild(topics);
+  }
+
+  const meta = el("div", "tile-meta");
   if (repo.language) meta.appendChild(langDot(repo.language));
   if (repo.stargazers_count > 0) meta.appendChild(el("span", null, "\u2605 " + repo.stargazers_count));
   meta.appendChild(el("span", "spacer"));
-  meta.appendChild(el("span", "open-tag", "Open \u2192"));
   meta.appendChild(el("span", null, timeAgo(repo.pushed_at)));
-  card.appendChild(meta);
+  tile.appendChild(meta);
 
-  const pop = el("div", "pop");
-  pop.appendChild(el("p", "pop-desc", repo.description || "No description yet."));
-  if (repo.topics && repo.topics.length) {
-    const topics = el("div", "topics");
-    repo.topics.slice(0, 6).forEach(t => topics.appendChild(el("span", "topic", t)));
-    pop.appendChild(topics);
-  }
-  card.appendChild(pop);
-
-  node.appendChild(card);
-  return node;
+  return tile;
 }
 
-/* ---------- build a timeline into a mount ---------- */
-function buildTimeline(list, timelineId, statusId, emptyMsg) {
-  const tl = document.getElementById(timelineId);
+/* ---------- build a bento grid into a mount ----------
+   The two newest projects anchor the grid as larger tiles when there are
+   enough of them; everything else flows as equal tiles, so the eye gets a
+   focal point without anyone hunting through identical boxes. */
+function buildGrid(list, gridId, statusId, emptyMsg) {
+  const grid = document.getElementById(gridId);
   const st = document.getElementById(statusId);
   if (!list.length) {
     st.className = "status";
     st.innerHTML = emptyMsg;
-    st.hidden = false; tl.hidden = true;
+    st.hidden = false; grid.hidden = true;
     return;
   }
-  tl.innerHTML = "";
+  grid.innerHTML = "";
   list.forEach((repo, i) => {
-    const node = buildNode(repo, i);
-    tl.appendChild(node);
-    reveal(node, (i % 6) * 0.06);
+    const size = (list.length >= 4 && i === 0) ? "feat" : "";
+    const tile = buildTile(repo, size, size === "feat" ? 3 : 2);
+    grid.appendChild(tile);
+    reveal(tile, (i % 6) * 0.05);
   });
-  st.hidden = true; tl.hidden = false;
+  st.hidden = true; grid.hidden = false;
 }
 
 /* ---------- load repos ---------- */
@@ -672,9 +774,9 @@ async function loadRepos() {
     const wip = repos.filter(isWip);
     const done = repos.filter(r => !isWip(r));
 
-    buildTimeline(done, "completed-timeline", "completed-status",
+    buildGrid(done, "completed-grid", "completed-status",
       "No completed projects to show yet. Push a project to GitHub and refresh.");
-    buildTimeline(wip, "wip-timeline", "wip-status",
+    buildGrid(wip, "wip-grid", "wip-status",
       "Nothing in progress right now. Add the <code>wip</code> topic to a repo on GitHub to show it here.");
   } catch (err) {
     cStatus.className = "status error"; cStatus.textContent = err.message; cStatus.hidden = false;
@@ -883,6 +985,69 @@ function initContactForm() {
   });
 }
 
+/* ---------- theme: automatic by local clock, with a manual override ----------
+   No override stored  -> follow the visitor's own clock (day vs night).
+   "light" / "dark"    -> the visitor pinned it; we respect that everywhere.
+   The toggle cycles Auto -> Day -> Night -> Auto and remembers the choice. */
+const THEME = {
+  KEY: "portfolio-theme",
+  faviconLight: "",
+  faviconNight: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23121214'/%3E%3Cpath d='M8 42 H24 L36 30 H50' stroke='%23d99a5b' stroke-width='4' fill='none'/%3E%3Ccircle cx='50' cy='30' r='7' fill='%23d99a5b'/%3E%3Ccircle cx='50' cy='30' r='3' fill='%23121214'/%3E%3C/svg%3E",
+  ICONS: {
+    day:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>',
+    night:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 12.9A8.6 8.6 0 1 1 11.1 3a6.7 6.7 0 0 0 9.9 9.9z"/></svg>',
+    auto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>'
+  },
+  read() { try { return localStorage.getItem(this.KEY) || "auto"; } catch (e) { return "auto"; } },
+  write(v) { try { localStorage.setItem(this.KEY, v); } catch (e) {} },
+  isNightByClock() {
+    const h = new Date().getHours();
+    return h < CONFIG.dayStartHour || h >= CONFIG.nightStartHour;
+  },
+  isNight(mode) {
+    if (mode === "dark") return true;
+    if (mode === "light") return false;
+    return this.isNightByClock();
+  },
+  apply(mode) {
+    const night = this.isNight(mode);
+    document.documentElement.setAttribute("data-theme", night ? "night" : "day");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", night ? "#121214" : "#f4f7fb");
+    const icon = document.querySelector('link[rel="icon"]');
+    if (icon) icon.setAttribute("href", night ? this.faviconNight : this.faviconLight);
+    this.paintButton(mode, night);
+  },
+  paintButton(mode, night) {
+    const ic = document.getElementById("theme-ic");
+    const label = document.getElementById("theme-label");
+    const btn = document.getElementById("theme-toggle");
+    if (ic) ic.innerHTML = this.ICONS[mode === "dark" ? "night" : mode === "light" ? "day" : "auto"];
+    if (label) label.textContent = mode === "dark" ? "Night" : mode === "light" ? "Day" : "Auto";
+    if (btn) {
+      btn.setAttribute("title",
+        mode === "auto"  ? "Theme follows your local time (now " + (night ? "night" : "day") + "). Click for day." :
+        mode === "light" ? "Theme set to day. Click for night." :
+                           "Theme set to night. Click to follow your local time.");
+    }
+  },
+  cycle() {
+    const next = { auto: "light", light: "dark", dark: "auto" }[this.read()] || "light";
+    this.write(next);
+    this.apply(next);
+  },
+  init() {
+    const icon = document.querySelector('link[rel="icon"]');
+    this.faviconLight = icon ? icon.getAttribute("href") : "";
+    this.apply(this.read());
+    const btn = document.getElementById("theme-toggle");
+    if (btn) btn.addEventListener("click", () => this.cycle());
+    /* if following the clock, re-check now and then so a tab left open flips
+       at the day/night boundary without a reload */
+    setInterval(() => { if (this.read() === "auto") this.apply("auto"); }, 5 * 60 * 1000);
+  }
+};
+
 /* ---------- config-driven bits ---------- */
 function applyConfig() {
   const ghLink = document.getElementById("hero-github-link");
@@ -901,6 +1066,7 @@ function applyConfig() {
 }
 
 /* ---------- boot ---------- */
+THEME.init();
 applyConfig();
 initContactForm();
 startHeroMotion();
