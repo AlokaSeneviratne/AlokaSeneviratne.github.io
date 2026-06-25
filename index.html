@@ -232,7 +232,6 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 .tile.feat { grid-column: span 4; }
-.tile.flagship { grid-column: span 6; }
 
 /* a faint right-angle trace in the top corner, the PCB motif carried onto the card */
 .tile::before {
@@ -249,12 +248,10 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
 .tile-title { font-family: var(--display); font-weight: 600; font-size: 1.12rem; line-height: 1.2; color: var(--ink); word-break: break-word; transition: color 0.2s ease; }
 .tile:hover .tile-title { color: var(--accent); }
 .tile.feat .tile-title { font-size: 1.55rem; }
-.tile.flagship .tile-title { font-size: 1.95rem; }
 .tile-open { flex-shrink: 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); opacity: 0; transform: translateX(-4px); transition: opacity 0.2s ease, transform 0.2s ease; white-space: nowrap; }
 .tile:hover .tile-open { opacity: 1; transform: none; }
 .tile-desc { color: var(--muted); font-size: 0.92rem; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .tile.feat .tile-desc { font-size: 0.98rem; -webkit-line-clamp: 3; line-clamp: 3; max-width: 70ch; }
-.tile.flagship .tile-desc { font-size: 1.02rem; -webkit-line-clamp: 2; line-clamp: 2; max-width: 82ch; }
 .tile-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
 .tile-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: auto; padding-top: 14px; }
 .tile-meta .spacer { flex-grow: 1; }
@@ -265,7 +262,6 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.5
 @media (max-width: 980px) {
   .bento { grid-template-columns: repeat(4, 1fr); }
   .tile.feat { grid-column: span 4; }
-  .tile.flagship { grid-column: span 4; }
 }
 
 /* ---------- status / empty ---------- */
@@ -304,6 +300,7 @@ html[data-theme="night"] .badge.wip { background: #2a2113; color: #ecc784; borde
 .readme pre code { background: none; border: 0; padding: 0; color: var(--readme-ink); font-size: 0.85rem; }
 .readme blockquote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 1.1em 0; color: var(--muted); }
 .readme img { max-width: 100%; height: auto; margin: 0.6em 0; border-radius: 6px; }
+.readme video { display: block; max-width: 100%; height: auto; margin: 0.9em 0; border-radius: 8px; border: 1px solid var(--edge); background: #000; }
 .readme table { border-collapse: collapse; margin: 1.1em 0; width: 100%; display: block; overflow-x: auto; }
 .readme th, .readme td { border: 1px solid var(--edge); padding: 8px 12px; text-align: left; font-size: 0.9rem; }
 .readme th { background: var(--code-bg); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -371,9 +368,9 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
 
   /* grid stacks to a single column, every tile full width */
   .bento { grid-template-columns: 1fr; grid-auto-rows: minmax(170px, auto); }
-  .tile, .tile.feat, .tile.flagship { grid-column: auto; grid-row: auto; }
-  .tile.feat .tile-title, .tile.flagship .tile-title { font-size: 1.4rem; }
-  .tile.feat .tile-desc, .tile.flagship .tile-desc { -webkit-line-clamp: 3; line-clamp: 3; }
+  .tile, .tile.feat, .tile.tall { grid-column: auto; grid-row: auto; }
+  .tile.feat .tile-title { font-size: 1.4rem; }
+  .tile.feat .tile-desc { -webkit-line-clamp: 3; line-clamp: 3; }
   /* touch has no hover, so keep the open cue and corner trace visible */
   .tile-open { opacity: 1; transform: none; }
   .tile::before { opacity: 0.5; }
@@ -463,7 +460,7 @@ footer { border-top: 1px solid var(--edge); padding: 28px 0 40px; font-family: v
   <div class="wrap page">
     <div class="page-head">
       <h2>In Progress</h2>
-      <p class="lede">Active builds on the bench right now, newest first.</p>
+      <p class="lede">Active builds on the bench right now, newest first. These carry the <code>wip</code> topic on GitHub.</p>
     </div>
     <div id="wip-status" class="status">Fetching repositories from GitHub...</div>
     <div id="wip-grid" class="bento" hidden></div>
@@ -582,12 +579,6 @@ const CONFIG = {
   priorityTopics: ["priority", "featured", "pinned"],
   /* ...OR list exact repo names here instead of (or alongside) the topics. */
   priorityRepos: [],
-
-  /* One step up from priority: a single flagship. A repo carrying one of these
-     topics becomes the largest "hero" tile and sits above the priority pins.
-     Tag just one for a clear hero; tagging several gives you several big tiles. */
-  heroTopics: ["hero", "spotlight"],
-  heroRepos: [],
 };
 
 /* ---------- GitHub language colors (common subset) ---------- */
@@ -665,24 +656,6 @@ function isPriority(repo) {
   const topics = (repo.topics || []).map(t => t.toLowerCase());
   return CONFIG.priorityTopics.some(k => topics.includes(k));
 }
-function isHero(repo) {
-  if (CONFIG.heroRepos.includes(repo.name)) return true;
-  const topics = (repo.topics || []).map(t => t.toLowerCase());
-  return CONFIG.heroTopics.some(k => topics.includes(k));
-}
-/* hero (2) sits above priority (1), above everything else (0) */
-function projectRank(repo) {
-  if (isHero(repo)) return 2;
-  if (isPriority(repo)) return 1;
-  return 0;
-}
-/* the topics that drive layout (hero / priority / wip) are switches, not labels,
-   so they are kept out of the visible tag chips on a card */
-function visibleTopics(repo) {
-  const hide = [].concat(CONFIG.heroTopics, CONFIG.priorityTopics, CONFIG.wipTopics)
-                 .map(s => String(s).toLowerCase());
-  return (repo.topics || []).filter(t => hide.indexOf(String(t).toLowerCase()) === -1);
-}
 
 /* shimmer placeholder shown while the README is fetching */
 function readmeSkeleton() {
@@ -739,7 +712,7 @@ function reveal(node, delaySeconds) {
 }
 
 /* ---------- build one project tile ---------- */
-function buildTile(repo, sizeClass) {
+function buildTile(repo, sizeClass, descLines) {
   const tile = el("a", "tile" + (sizeClass ? " " + sizeClass : ""));
   tile.href = "#/project/" + encodeURIComponent(repo.name);
 
@@ -750,11 +723,9 @@ function buildTile(repo, sizeClass) {
 
   tile.appendChild(el("p", "tile-desc", repo.description || "No description yet."));
 
-  const tops = visibleTopics(repo);
-  if (tops.length) {
+  if (repo.topics && repo.topics.length) {
     const topics = el("div", "tile-topics");
-    const max = sizeClass === "flagship" ? 8 : sizeClass === "feat" ? 6 : 4;
-    tops.slice(0, max).forEach(t => topics.appendChild(el("span", "topic", t)));
+    repo.topics.slice(0, descLines >= 4 ? 6 : 4).forEach(t => topics.appendChild(el("span", "topic", t)));
     tile.appendChild(topics);
   }
 
@@ -782,17 +753,14 @@ function buildGrid(list, gridId, statusId, emptyMsg) {
     return;
   }
   grid.innerHTML = "";
-  /* Tiering: a hero-topic project is the single biggest tile, priority / pinned
-     projects are the wide featured tiles, everything else is a standard tile.
-     With nothing pinned at all, the newest build is featured so the grid still
-     leads with something. */
-  const anyPinned = list.some(r => isHero(r) || isPriority(r));
+  /* If any project is pinned, those are the featured (larger) tiles. With none
+     pinned, fall back to spotlighting the newest build so the grid still leads
+     with something. */
+  const anyPinned = list.some(isPriority);
   list.forEach((repo, i) => {
-    let size = "";
-    if (isHero(repo)) size = "flagship";
-    else if (isPriority(repo)) size = "feat";
-    else if (!anyPinned && list.length >= 4 && i === 0) size = "feat";
-    const tile = buildTile(repo, size);
+    const featured = anyPinned ? isPriority(repo) : (list.length >= 4 && i === 0);
+    const size = featured ? "feat" : "";
+    const tile = buildTile(repo, size, featured ? 3 : 2);
     grid.appendChild(tile);
     reveal(tile, (i % 6) * 0.05);
   });
@@ -818,8 +786,8 @@ async function loadRepos() {
     let repos = await res.json();
     repos = repos.filter(r => !r.archived && !(CONFIG.hideForks && r.fork) && !CONFIG.excludeRepos.includes(r.name));
     repos.sort((a, b) => {
-      const r = projectRank(b) - projectRank(a);                  /* hero, then priority, float up */
-      if (r) return r;
+      const pa = isPriority(a) ? 1 : 0, pb = isPriority(b) ? 1 : 0;
+      if (pa !== pb) return pb - pa;                              /* pinned float up */
       return new Date(b.pushed_at) - new Date(a.pushed_at);       /* otherwise newest first */
     });
 
@@ -847,6 +815,34 @@ function fixImageUrl(src, rawBase) {
   if (blob) return "https://raw.githubusercontent.com/" + blob[1] + "/" + blob[2] + "/" + blob[3];
   if (/^https?:/.test(src)) return src;
   return rawBase ? rawBase + src.replace(/^\.?\//, "") : src;
+}
+
+/* ---------- turn a README video link into a real player ----------
+   GitHub auto-embeds bare video asset URLs (github.com/<user>/<repo>/assets/...)
+   as a player, but marked only renders them as plain links. We catch those, plus
+   any direct .mp4 / .webm / .mov / .ogg link, and swap in a muted, looping,
+   autoplaying <video>. Built by hand here (after sanitize) so the media element
+   and its attributes are ours, not something DOMPurify has to allow. */
+const VIDEO_FILE = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i;
+const GH_VIDEO_ASSET = /^https?:\/\/github\.com\/[^/]+\/[^/]+\/assets\/\d+\/[\w-]+/;
+function videoFromLink(a, rawBase) {
+  const href = (a.getAttribute("href") || a.href || "").trim();
+  if (!href) return null;
+  /* a bare autolinked asset URL is a video attachment (images come through as
+     <img>, never as a link), so only convert links whose text is the URL itself;
+     direct video-file links convert regardless of their text */
+  const bareAutolink = a.textContent.trim() === href;
+  const isAsset = GH_VIDEO_ASSET.test(href) && bareAutolink;
+  if (!isAsset && !VIDEO_FILE.test(href)) return null;
+
+  const v = document.createElement("video");
+  v.src = fixImageUrl(href, rawBase);
+  v.muted = true;        v.setAttribute("muted", "");
+  v.autoplay = true;     v.setAttribute("autoplay", "");
+  v.loop = true;         v.setAttribute("loop", "");
+  v.playsInline = true;  v.setAttribute("playsinline", "");
+  v.setAttribute("preload", "metadata");
+  return v;
 }
 
 /* ---------- render the README into a project page ---------- */
@@ -892,6 +888,8 @@ async function renderReadme(repo, mount) {
       img.loading = "lazy";
     });
     mount.querySelectorAll("a").forEach(a => {
+      const video = videoFromLink(a, rawBase);
+      if (video) { a.replaceWith(video); return; }
       const href = a.getAttribute("href") || "";
       if (href && !/^(https?:|#|mailto:|\/\/)/.test(href)) a.href = blobBase + href.replace(/^\.?\//, "");
       if (/^https?:/.test(a.href)) { a.target = "_blank"; a.rel = "noopener"; }
