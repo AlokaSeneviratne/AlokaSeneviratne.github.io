@@ -824,7 +824,7 @@ function fixImageUrl(src, rawBase) {
    autoplaying <video>. Built by hand here (after sanitize) so the media element
    and its attributes are ours, not something DOMPurify has to allow. */
 const VIDEO_FILE = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i;
-const GH_VIDEO_ASSET = /^https?:\/\/github\.com\/[^/]+\/[^/]+\/assets\/\d+\/[\w-]+/;
+const GH_VIDEO_ASSET = /^https?:\/\/github\.com\/(?:user-attachments\/assets\/[\w-]+|[^/]+\/[^/]+\/assets\/\d+\/[\w-]+)/;
 function videoFromLink(a, rawBase) {
   const href = (a.getAttribute("href") || a.href || "").trim();
   if (!href) return null;
